@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { tool, experimental_generateImage, type FileUIPart } from 'ai';
 import { getImageModel } from '@/lib/ai/providers';
 import { DEFAULT_IMAGE_MODEL } from '@/lib/ai/all-models';
-import OpenAI, { toFile } from 'openai';
+// Note: OpenAI SDK is imported lazily within execute() to avoid build-time env checks
 import { uploadFile } from '@/lib/blob';
 import { createModuleLogger } from '@/lib/logger';
 
@@ -10,10 +10,6 @@ interface GenerateImageProps {
   attachments?: Array<FileUIPart>;
   lastGeneratedImage?: { imageUrl: string; name: string } | null;
 }
-
-const openaiClient = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 const log = createModuleLogger('ai.tools.generate-image');
 
@@ -73,6 +69,7 @@ Use for:
 
           // Add lastGeneratedImage first if it exists
           if (lastGeneratedImage) {
+            const { toFile } = await import('openai');
             const response = await fetch(lastGeneratedImage.imageUrl);
             const arrayBuffer = await response.arrayBuffer();
             const buffer = Buffer.from(arrayBuffer);
@@ -85,6 +82,7 @@ Use for:
           // Add user file parts
           const partImages = await Promise.all(
             imageParts.map(async (part) => {
+              const { toFile } = await import('openai');
               const response = await fetch(part.url);
               const arrayBuffer = await response.arrayBuffer();
               const buffer = Buffer.from(arrayBuffer);
@@ -98,6 +96,12 @@ Use for:
 
           inputImages.push(...partImages);
 
+          const { default: OpenAI } = await import('openai');
+          const apiKey = process.env.OPENAI_API_KEY;
+          if (!apiKey) {
+            throw new Error('OPENAI_API_KEY environment variable is not set');
+          }
+          const openaiClient = new OpenAI({ apiKey });
           const rsp = await openaiClient.images.edit({
             model: 'gpt-image-1',
             image: inputImages, // Pass all images to OpenAI
@@ -129,7 +133,7 @@ Use for:
 
         // Non-edit case: use experimental_generateImage
         const res = await experimental_generateImage({
-          model: getImageModel(DEFAULT_IMAGE_MODEL),
+          model: await getImageModel(DEFAULT_IMAGE_MODEL),
           prompt,
           n: 1,
           providerOptions: {
