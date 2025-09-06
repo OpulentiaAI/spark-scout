@@ -21,24 +21,24 @@ function PureSuggestedActions({
   const sendMessage = useSendMessage();
   const suggestedActions = [
     {
-      title: 'What are the advantages',
-      label: 'of using Next.js?',
-      action: 'What are the advantages of using Next.js?',
+      title: 'Create a simple React',
+      label: 'component with hooks',
+      action: 'How do I create a simple React component with hooks?',
     },
     {
-      title: 'Write code to',
-      label: `demonstrate djikstra's algorithm`,
-      action: `Write code to demonstrate djikstra's algorithm`,
+      title: 'Write a function to',
+      label: 'reverse a string in JavaScript',
+      action: 'Write a function to reverse a string in JavaScript',
     },
     {
-      title: 'Help me write an essay',
-      label: `about silicon valley`,
-      action: `Help me write an essay about silicon valley`,
+      title: 'Explain the concept of',
+      label: 'async/await in programming',
+      action: 'Explain the concept of async/await in programming',
     },
     {
-      title: 'What is the weather',
-      label: 'in San Francisco?',
-      action: 'What is the weather in San Francisco?',
+      title: 'Show me how to create',
+      label: 'a simple todo list app',
+      action: 'Show me how to create a simple todo list app',
     },
   ];
 
