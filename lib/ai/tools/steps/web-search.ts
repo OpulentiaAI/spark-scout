@@ -1,4 +1,4 @@
-import { tavily, type TavilySearchOptions } from '@tavily/core';
+import type { TavilySearchOptions } from '@tavily/core';
 import FirecrawlApp, { type SearchParams } from '@mendable/firecrawl-js';
 import type { StreamWriter } from '../../types';
 import { createModuleLogger } from '../../../logger';
@@ -25,11 +25,33 @@ export type WebSearchResponse = {
   error?: string;
 };
 
-// Initialize search providers
-const tvly = tavily({ apiKey: process.env.TAVILY_API_KEY as string });
-const firecrawl = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY ?? '',
-});
+// Initialize providers lazily to avoid crashing when keys are missing
+let tvly: any | null = null;
+function getTavilyClient() {
+  if (tvly) return tvly;
+  const key = process.env.TAVILY_API_KEY;
+  if (!key) return null;
+  try {
+    const { tavily } = require('@tavily/core');
+    tvly = tavily({ apiKey: key });
+    return tvly;
+  } catch {
+    return null;
+  }
+}
+
+let firecrawl: FirecrawlApp | null = null;
+function getFirecrawlClient() {
+  if (firecrawl) return firecrawl;
+  const key = process.env.FIRECRAWL_API_KEY;
+  if (!key) return null;
+  try {
+    firecrawl = new FirecrawlApp({ apiKey: key });
+    return firecrawl;
+  } catch {
+    return null;
+  }
+}
 
 const log = createModuleLogger('tools/steps/web-search');
 
@@ -48,7 +70,15 @@ export async function webSearchStep({
     let results: WebSearchResult[] = [];
 
     if (providerOptions.provider === 'tavily') {
-      const response = await tvly.search(query, {
+      const client = getTavilyClient();
+      if (!client) {
+        return {
+          results: [],
+          error:
+            'Tavily search is not configured. Set TAVILY_API_KEY to enable web search.',
+        };
+      }
+      const response = await client.search(query, {
         searchDepth: providerOptions.searchDepth || 'basic',
         maxResults,
         includeAnswer: true,
@@ -62,7 +92,15 @@ export async function webSearchStep({
         content: r.content,
       }));
     } else if (providerOptions.provider === 'firecrawl') {
-      const response = await firecrawl.search(query, {
+      const client = getFirecrawlClient();
+      if (!client) {
+        return {
+          results: [],
+          error:
+            'Firecrawl search is not configured. Set FIRECRAWL_API_KEY to enable web search.',
+        };
+      }
+      const response = await client.search(query, {
         timeout: providerOptions.timeout || 15000,
         limit: maxResults,
         scrapeOptions: { formats: ['markdown'] },
