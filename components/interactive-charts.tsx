@@ -7,7 +7,7 @@ import { motion } from 'motion/react';
 
 const CHART_COLORS = [
   '#22c55e', // green
-  '#3b82f6', // blue
+  '#A3E635', // blue
   '#f59e0b', // amber
   '#8b5cf6', // purple
   '#ec4899', // pink

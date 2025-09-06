@@ -21,7 +21,7 @@ export function LinkMarkdown({
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className={cn('text-blue-500 hover:underline', className)}
+        className={cn('text-primary hover:underline', className)}
         {...props}
       >
         {children}
@@ -33,7 +33,7 @@ export function LinkMarkdown({
     <Link
       // @ts-expect-error - href is a valid URL
       href={href}
-      className={cn('text-blue-500 hover:underline', className)}
+      className={cn('text-primary hover:underline', className)}
       {...props}
     >
       {children}

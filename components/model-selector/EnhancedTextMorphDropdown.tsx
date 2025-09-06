@@ -269,7 +269,7 @@ export function EnhancedTextMorphDropdown() {
                         <div className="flex items-center gap-2">
                           <span className="font-medium">{model.name}</span>
                           {model.riskLevel === 'high' && <AlertTriangle className="h-3 w-3 text-orange-500" />}
-                          {model.approvalRequired && <Clock className="h-3 w-3 text-blue-500" />}
+                          {model.approvalRequired && <Clock className="h-3 w-3 text-primary" />}
                         </div>
                         <div className="text-xs text-muted-foreground">{model.capabilities.map((c) => c.name).join(', ')}</div>
                         <div className="text-xs text-muted-foreground mt-1">Tools: {compatibleCount}/{getTotalToolCount()} compatible</div>

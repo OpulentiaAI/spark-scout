@@ -249,8 +249,8 @@
   --card-foreground: hsl(0 0% 20%);
   --popover: hsl(0 0% 100%);
   --popover-foreground: hsl(0 0% 20%);
-  --primary: hsl(217.2193 91.2195% 59.8039%);
-  --primary-foreground: hsl(0 0% 100%);
+  --primary: #A3E635;
+  --primary-foreground: #18181B;
   --secondary: hsl(220 14.2857% 95.8824%);
   --secondary-foreground: hsl(215 13.7931% 34.1176%);
   --muted: hsl(210 20% 98.0392%);
@@ -261,7 +261,7 @@
   --destructive-foreground: hsl(0 0% 100%);
   --border: hsl(220 13.0435% 90.9804%);
   --input: hsl(220 13.0435% 90.9804%);
-  --ring: hsl(217.2193 91.2195% 59.8039%);
+  --ring: #A1A1AA;
   --chart-1: hsl(217.2193 91.2195% 59.8039%);
   --chart-2: hsl(221.2121 83.1933% 53.3333%);
   --chart-3: hsl(224.2781 76.3265% 48.0392%);
@@ -269,12 +269,12 @@
   --chart-5: hsl(224.4444 64.2857% 32.9412%);
   --sidebar: hsl(210 20% 98.0392%);
   --sidebar-foreground: hsl(0 0% 20%);
-  --sidebar-primary: hsl(217.2193 91.2195% 59.8039%);
+  --sidebar-primary: #A3E635;
   --sidebar-primary-foreground: hsl(0 0% 100%);
   --sidebar-accent: hsl(204 93.75% 93.7255%);
   --sidebar-accent-foreground: hsl(224.4444 64.2857% 32.9412%);
   --sidebar-border: hsl(220 13.0435% 90.9804%);
-  --sidebar-ring: hsl(217.2193 91.2195% 59.8039%);
+  --sidebar-ring: #A1A1AA;
   --font-sans: Inter, sans-serif;
   --font-serif: Source Serif 4, serif;
   --font-mono: JetBrains Mono, monospace;
@@ -302,8 +302,8 @@
   --card-foreground: hsl(0 0% 89.8039%);
   --popover: hsl(0 0% 14.902%);
   --popover-foreground: hsl(0 0% 89.8039%);
-  --primary: hsl(217.2193 91.2195% 59.8039%);
-  --primary-foreground: hsl(0 0% 100%);
+  --primary: #A3E635;
+  --primary-foreground: #18181B;
   --secondary: hsl(0 0% 14.902%);
   --secondary-foreground: hsl(0 0% 89.8039%);
   --muted: hsl(0 0% 14.902%);
@@ -314,7 +314,7 @@
   --destructive-foreground: hsl(0 0% 100%);
   --border: hsl(0 0% 25.098%);
   --input: hsl(0 0% 25.098%);
-  --ring: hsl(217.2193 91.2195% 59.8039%);
+  --ring: #A1A1AA;
   --chart-1: hsl(213.1169 93.9024% 67.8431%);
   --chart-2: hsl(217.2193 91.2195% 59.8039%);
   --chart-3: hsl(221.2121 83.1933% 53.3333%);
@@ -322,12 +322,12 @@
   --chart-5: hsl(225.931 70.7317% 40.1961%);
   --sidebar: hsl(0 0% 14.902%);
   --sidebar-foreground: hsl(0 0% 89.8039%);
-  --sidebar-primary: hsl(217.2193 91.2195% 59.8039%);
+  --sidebar-primary: #A3E635;
   --sidebar-primary-foreground: hsl(0 0% 100%);
   --sidebar-accent: hsl(224.4444 64.2857% 32.9412%);
   --sidebar-accent-foreground: hsl(213.3333 96.9231% 87.2549%);
   --sidebar-border: hsl(0 0% 25.098%);
-  --sidebar-ring: hsl(217.2193 91.2195% 59.8039%);
+  --sidebar-ring: #A1A1AA;
   --font-sans: Inter, sans-serif;
   --font-serif: Source Serif 4, serif;
   --font-mono: JetBrains Mono, monospace;
@@ -412,7 +412,7 @@
 }
 
 .suggestion-highlight {
-  @apply bg-blue-200 hover:bg-blue-300 dark:hover:bg-blue-400/50 dark:text-blue-50 dark:bg-blue-500/40;
+  @apply bg-primary hover:bg-primary dark:hover:bg-primary/50 dark:text-primary dark:bg-primary/40;
 }
 
 /* Lexical Editor Styles */

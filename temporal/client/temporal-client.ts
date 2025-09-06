@@ -15,6 +15,8 @@ export class TemporalClientManager {
       address,
       // Allow non-TLS in production when connecting to self-hosted Temporal/Temporalite
       tls: useTLS ? {} : undefined,
+      // Temporal Cloud: provide API key if configured
+      apiKey: process.env.TEMPORAL_API_KEY,
     });
 
     clientInstance = new Client({ connection, namespace });

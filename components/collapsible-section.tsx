@@ -87,7 +87,7 @@ export function CollapsibleSection({
               className={cn(
                 'w-fit flex items-center gap-1.5 px-1.5 py-0.5 text-xs',
                 status === 'running'
-                  ? 'bg-blue-50/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                  ? 'bg-primary/50 dark:bg-primary/20 text-primary dark:text-primary'
                   : 'bg-green-50/50 dark:bg-green-900/20 text-green-600 dark:text-green-400',
               )}
             >

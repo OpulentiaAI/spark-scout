@@ -24,7 +24,7 @@ export function LoginPrompt({
       <p className="text-sm text-muted-foreground ml-6">{description}</p>
       <Link
         href="/login"
-        className="text-sm font-medium text-blue-500 hover:underline ml-6 block"
+        className="text-sm font-medium text-primary hover:underline ml-6 block"
       >
         Sign in
       </Link>

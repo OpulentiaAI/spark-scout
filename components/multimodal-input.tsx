@@ -524,7 +524,7 @@ function PureMultimodalInput({
       <div className="relative">
         <PromptInput
           className={`${className} relative transition-colors @container ${
-            isDragActive ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20' : ''
+            isDragActive ? 'border-primary bg-primary dark:bg-secondary/20' : ''
           }`}
           onSubmit={(e) => {
             e.preventDefault();
@@ -539,8 +539,8 @@ function PureMultimodalInput({
           <input {...getInputProps()} />
 
           {isDragActive && (
-            <div className="absolute inset-0 flex items-center justify-center bg-blue-50/80 dark:bg-blue-950/40 border-2 border-dashed border-blue-500 rounded-xl z-10">
-              <div className="text-blue-600 dark:text-blue-400 font-medium">
+            <div className="absolute inset-0 flex items-center justify-center bg-primary/80 dark:bg-secondary/40 border-2 border-dashed border-primary rounded-xl z-10">
+              <div className="text-primary dark:text-primary font-medium">
                 Drop images or PDFs here to attach
               </div>
             </div>

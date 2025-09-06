@@ -205,10 +205,10 @@ export function Weather({
       className={cx(
         'flex flex-col gap-4 rounded-2xl p-4 skeleton-bg max-w-[500px]',
         {
-          'bg-blue-400': isDay,
+          'bg-primary': isDay,
         },
         {
-          'bg-indigo-900': !isDay,
+          'bg-primary': !isDay,
         },
       )}
     >
@@ -221,23 +221,23 @@ export function Weather({
                 'bg-yellow-300': isDay,
               },
               {
-                'bg-indigo-100': !isDay,
+                'bg-primary': !isDay,
               },
             )}
           />
-          <div className="text-4xl font-medium text-blue-50">
+          <div className="text-4xl font-medium text-primary">
             {n(weatherAtLocation.current.temperature_2m)}
             {weatherAtLocation.current_units.temperature_2m}
           </div>
         </div>
 
-        <div className="text-blue-50">{`H:${n(currentHigh)}° L:${n(currentLow)}°`}</div>
+        <div className="text-primary">{`H:${n(currentHigh)}° L:${n(currentLow)}°`}</div>
       </div>
 
       <div className="flex flex-row justify-between">
         {displayTimes.map((time, index) => (
           <div key={time} className="flex flex-col items-center gap-1">
-            <div className="text-blue-100 text-xs">
+            <div className="text-primary text-xs">
               {format(new Date(time), 'ha')}
             </div>
             <div
@@ -247,11 +247,11 @@ export function Weather({
                   'bg-yellow-300': isDay,
                 },
                 {
-                  'bg-indigo-200': !isDay,
+                  'bg-primary': !isDay,
                 },
               )}
             />
-            <div className="text-blue-50 text-sm">
+            <div className="text-primary text-sm">
               {n(displayTemperatures[index])}
               {weatherAtLocation.hourly_units.temperature_2m}
             </div>

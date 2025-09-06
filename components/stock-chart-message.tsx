@@ -25,7 +25,7 @@ export function StockChartMessage({
         className={cn(
           'w-fit flex items-center gap-3 px-4 py-2 rounded-full transition-colors duration-200',
           !result
-            ? 'bg-blue-50/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+            ? 'bg-primary/50 dark:bg-primary/20 text-primary dark:text-primary'
             : 'bg-green-50/50 dark:bg-green-900/20 text-green-600 dark:text-green-400',
         )}
       >

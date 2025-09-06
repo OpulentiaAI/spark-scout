@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 
 const CHART_COLORS = [
   { line: '#22c55e', area: 'rgba(34, 197, 94, 0.15)' }, // green
-  { line: '#3b82f6', area: 'rgba(59, 130, 246, 0.15)' }, // blue
+  { line: '#A3E635', area: 'rgba(59, 130, 246, 0.15)' }, // blue
   { line: '#f59e0b', area: 'rgba(245, 158, 11, 0.15)' }, // amber
   { line: '#8b5cf6', area: 'rgba(139, 92, 246, 0.15)' }, // purple
   { line: '#ec4899', area: 'rgba(236, 72, 153, 0.15)' }, // pink
