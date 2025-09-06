@@ -3,7 +3,6 @@ import { createActivities } from '../activities/ai-provider-activities';
 import * as toolActivities from '../activities/tool-activities';
 import { executeCapyTool } from '../activities/capy-tool-activities';
 import { createRequire } from 'node:module';
-import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
 
@@ -22,7 +21,7 @@ export async function createChatWorker() {
 }
 
 // Allow running directly: bun run tsx temporal/workers/chat-worker.ts
-if (import.meta.url === `file://${fileURLToPath(process.argv[1] || '')}`) {
+if (require.main === module) {
   (async () => {
     const worker = await createChatWorker();
     console.log('Chat Worker starting...');
