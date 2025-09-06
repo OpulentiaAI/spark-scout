@@ -16,4 +16,4 @@ ENV NODE_ENV=production
 # ENV TEMPORAL_NAMESPACE=default
 # ENV TEMPORAL_TLS=false
 
-CMD ["bun", "run", "temporal:worker:chat"]
+CMD ["bun", "temporal/workers/chat-worker.ts"]
