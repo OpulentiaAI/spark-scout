@@ -1,12 +1,14 @@
 import { extractReasoningMiddleware, wrapLanguageModel } from 'ai';
-
-import { openai, type OpenAIResponsesProviderOptions } from '@ai-sdk/openai';
+import { createOpenAI } from '@ai-sdk/openai';
+import type { OpenAIResponsesProviderOptions } from '@ai-sdk/openai';
 import type { AnthropicProviderOptions } from '@ai-sdk/anthropic';
 import type { GoogleGenerativeAIProviderOptions } from '@ai-sdk/google';
 import { getImageModelDefinition, getModelDefinition } from './all-models';
 import { gateway } from '@ai-sdk/gateway';
 import type { ImageModelId, ModelId } from '../models/model-id';
 import { getModelAndProvider } from '../models/utils';
+
+export let lastLanguageProviderPath: 'openai' | 'gateway' | null = null;
 
 const telemetryConfig = {
   telemetry: {
@@ -17,36 +19,47 @@ const telemetryConfig = {
 
 export const getLanguageModel = (modelId: ModelId) => {
   const model = getModelDefinition(modelId);
-  const languageProvider = gateway(model.id);
+  const { model: shortId, provider } = getModelAndProvider(modelId);
 
-  // Wrap with reasoning middleware if the model supports reasoning
-  if (model.features?.reasoning && model.owned_by === 'xai') {
-    console.log('Wrapping reasoning middleware for', model.id);
-    return wrapLanguageModel({
-      model: languageProvider,
-      middleware: extractReasoningMiddleware({ tagName: 'think' }),
+  // Prefer direct provider when available (avoids Gateway env requirements)
+  if (provider === 'openai' && process.env.OPENAI_API_KEY) {
+    const openai = createOpenAI({ 
+      apiKey: process.env.OPENAI_API_KEY
     });
+    const lm = openai(shortId);
+    lastLanguageProviderPath = 'openai';
+    return model.features?.reasoning && model.owned_by === 'xai'
+      ? wrapLanguageModel({
+          model: lm,
+          middleware: extractReasoningMiddleware({ tagName: 'think' }),
+        })
+      : lm;
   }
 
-  return languageProvider;
+  // Fallback to Gateway (expects Gateway to be configured via env)
+  const languageProvider = gateway(model.id);
+  lastLanguageProviderPath = 'gateway';
+  return model.features?.reasoning && model.owned_by === 'xai'
+    ? wrapLanguageModel({
+        model: languageProvider,
+        middleware: extractReasoningMiddleware({ tagName: 'think' }),
+      })
+    : languageProvider;
 };
 
-export const getImageModel = (modelId: ImageModelId) => {
+export const getImageModel = async (modelId: ImageModelId) => {
   const model = getImageModelDefinition(modelId);
   const { model: modelIdShort, provider } = getModelAndProvider(modelId);
 
   if (model.owned_by === 'openai') {
+    const { createOpenAI } = await import('@ai-sdk/openai');
+    const openai = createOpenAI({ apiKey: process.env.OPENAI_API_KEY });
     return openai.image(modelIdShort);
   }
   throw new Error(`Provider ${model.owned_by} not supported`);
 };
 
-const MODEL_ALIASES = {
-  'chat-model': getLanguageModel('openai/gpt-4o-mini'),
-  'title-model': getLanguageModel('openai/gpt-4o-mini'),
-  'artifact-model': getLanguageModel('openai/gpt-4o-mini'),
-  'chat-model-reasoning': getLanguageModel('openai/o3-mini'),
-};
+// Note: Avoid eager provider initialization to prevent build-time env issues.
 
 export const getModelProviderOptions = (
   providerModelId: ModelId,
