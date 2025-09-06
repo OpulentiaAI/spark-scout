@@ -10,7 +10,7 @@
 
 *Multi-provider AI Chat - access Claude, ChatGPT, Gemini, and Grok with advanced features, open-source and production-ready.*
 
-[**Try Sparka AI**](https://sparka.ai)
+[**Try Opulent OS**](https://sparka.ai)
 
 
 </div>
@@ -49,7 +49,7 @@ Access every major AI assistant Claude, GPT-4, Gemini, Grok, and 20+ models thro
 
 ## 🛠️ Tech Stack
 
-Sparka AI is built with modern technologies for scalability and performance:
+Opulent OS is built with modern technologies for scalability and performance:
 
 ### **Frontend**
 - **Next.js 15**: App Router with React Server Components
@@ -103,7 +103,7 @@ Sparka AI is built with modern technologies for scalability and performance:
    bun dev
    ```
 
-Visit [http://localhost:3000](http://localhost:3000) to start using Sparka AI locally.
+Visit [http://localhost:3000](http://localhost:3000) to start using Opulent OS locally.
 
 
 ## ⏱ Temporal Integration
@@ -188,7 +188,7 @@ Notes
 - For Temporal Cloud or a TLS-enabled server, set `TEMPORAL_TLS=true` and supply the appropriate certificates per Temporal docs.
 - You can also use the Temporal CLI locally to inspect workflows while developing.
 
-Sparka AI was built on the shoulders of giants. We're deeply grateful to these outstanding open source projects:
+Opulent OS was built on the shoulders of giants. We're deeply grateful to these outstanding open source projects:
 
 - **[Vercel AI Chatbot](https://github.com/vercel/ai-chatbot)** - Core architecture and AI SDK integration patterns
 - **[Scira](https://github.com/zaidmukaddam/scira)** - AI-powered search engine

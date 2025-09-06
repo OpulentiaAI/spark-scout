@@ -9,13 +9,13 @@ import { TRPCReactProvider } from '@/trpc/react';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://sparka.ai'),
-  title: 'Sparka AI - AI for everyone, from everyone',
+  title: 'Opulent OS - The new standard in operating systems',
   description:
     'Multi-provider AI Chat - access Claude, ChatGPT, Gemini, and Grok with advanced features, open-source and production-ready.',
   openGraph: {
-    siteName: 'Sparka AI',
+    siteName: 'Opulent OS',
     url: 'https://sparka.ai',
-    title: 'Sparka AI - AI for everyone, from everyone',
+    title: 'Opulent OS - The new standard in operating systems',
     description:
       'Multi-provider AI Chat - access Claude, ChatGPT, Gemini, and Grok with advanced features, open-source and production-ready.',
   },

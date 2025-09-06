@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   title: pageTitle,
   description: pageDescription,
   keywords: [
-    'Sparka',
+    'Opulent OS',
     'Vercel AI Gateway',
     'models',
     'LLM',

@@ -4,15 +4,15 @@ import { ModelsProvider } from '@/app/(models)/models/models-store-context';
 import { ModelsResults } from './models-results';
 import type { Metadata } from 'next';
 
-const pageTitle = 'Models | Sparka AI';
+const pageTitle = 'Models | Opulent OS';
 const pageDescription =
-  'Browse models across providers form Vercel AI Gateway in Sparka AI. Filter and compare by provider, context window, and pricing.';
+  'Browse models across providers form Vercel AI Gateway in Opulent OS. Filter and compare by provider, context window, and pricing.';
 
 export const metadata: Metadata = {
   title: pageTitle,
   description: pageDescription,
   keywords: [
-    'Sparka',
+    'Opulent OS',
     'Vercel AI Gateway',
     'models',
     'LLM',

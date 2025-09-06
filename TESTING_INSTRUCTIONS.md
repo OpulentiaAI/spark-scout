@@ -1,6 +1,6 @@
-# Testing Instructions for Sparka Features
+# Testing Instructions for Opulent OS Features
 
-This document provides comprehensive testing instructions for all major features in the Sparka chat application.
+This document provides comprehensive testing instructions for all major features in the Opulent OS chat application.
 
 ## Prerequisites
 
