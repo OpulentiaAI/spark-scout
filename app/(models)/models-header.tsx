@@ -71,7 +71,6 @@ function PureModelsHeader({ className }: { className?: string }) {
           Models
         </Link>
         <Link
-          // @ts-expect-error - Compare is a valid route
           href="/compare"
           className={cn(
             'text-sm font-medium transition-colors hover:text-foreground',
@@ -128,7 +127,6 @@ function PureModelsHeader({ className }: { className?: string }) {
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link
-                  // @ts-expect-error - Compare is a valid route
                   href="/compare"
                   className={cn(isActive('/compare') && 'font-semibold')}
                 >
