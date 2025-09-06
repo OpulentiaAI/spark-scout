@@ -23,7 +23,8 @@
     "fetch-model-features": "tsx scripts/fetch-model-features.ts",
     "test": "export PLAYWRIGHT=True && bunx playwright test --workers=4",
     "test:unit": "vitest run",
-    "test:types": "next typegen . && tsc --noEmit"
+    "test:types": "next typegen . && tsc --noEmit",
+    "temporal:worker:chat": "tsx temporal/workers/chat-worker.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.3",
@@ -170,7 +171,12 @@
     "vaul": "^1.1.2",
     "vercel": "^42.1.1",
     "zod": "^4.1.4",
-    "zustand": "^5.0.6"
+    "zustand": "^5.0.6",
+    "@temporalio/client": "^1.10.0",
+    "@temporalio/worker": "^1.10.0",
+    "@temporalio/workflow": "^1.10.0",
+    "@temporalio/activity": "^1.10.0",
+    "@temporalio/common": "^1.10.0"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
@@ -199,7 +205,8 @@
     "tsx": "^4.19.1",
     "tw-animate-css": "^1.3.7",
     "typescript": "5.8.3",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "@temporalio/testing": "^1.10.0"
   },
   "packageManager": "bun@1.1.34"
 }

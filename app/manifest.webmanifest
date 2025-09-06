@@ -1,6 +1,6 @@
 {
-  "name": "Sparka AI - AI for everyone, from everyone",
-  "short_name": "Sparka AI",
+  "name": "Opulent OS - The new standard in operating systems",
+  "short_name": "Opulent OS",
   "description": "Multi-provider AI Chat - access Claude, ChatGPT, Gemini, and Grok with advanced features, open-source and production-ready.",
   "start_url": "/",
   "display": "standalone",
@@ -8,9 +8,16 @@
   "theme_color": "#ffffff",
   "icons": [
     {
-      "src": "/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
+      "src": "/maskable-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/maskable-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

@@ -38,16 +38,16 @@ function PureModelsHeader({ className }: { className?: string }) {
         className,
       )}
     >
-      <Link href="/" className="py-2" aria-label="Sparka home">
+      <Link href="/" className="py-2" aria-label="Opulent OS home">
         <span className="text-lg font-semibold hover:bg-muted rounded-md cursor-pointer flex items-center gap-2 h-9 px-2">
           <Image
             src="/icon.svg"
-            alt="Sparka AI"
+            alt="Opulent OS"
             width={24}
             height={24}
             className="size-6"
           />
-          <span className="hidden sm:inline">Sparka</span>
+          <span className="hidden sm:inline">Opulent OS</span>
         </span>
       </Link>
 

@@ -1,0 +1,820 @@
+
+sessionId: 1757113576656userId:deviceId: 0ee3197b-51e2-487f-8cf9-80a2fe7ef2f6UpdateResetUpdate User IDUpdate Device ID[Skip to main content](https://docs.temporal.io/develop/typescript#__docusaurus_skipToContent_fallback)On this page![TypeScript SDK Banner](https://docs.temporal.io/assets/images/banner-typescript-temporal-d8a24070726a0d14cb4d1aab011db927.png)TYPESCRIPT SPECIFIC RESOURCESBuild Temporal Applications with the TypeScript SDK.**Temporal TypeScript Technical Resources:**- [TypeScript SDK Quickstart - Setup Guide](https://docs.temporal.io/develop/typescript/set-up-your-local-typescript)- [TypeScript API Documentation](https://typescript.temporal.io/)- [TypeScript SDK Code Samples](https://github.com/temporalio/samples-typescript)- [TypeScript SDK GitHub](https://github.com/temporalio/sdk-typescript)- [Temporal 101 in TypeScript Free Course](https://learn.temporal.io/courses/temporal_101/typescript/)**Get Connected with the Temporal TypeScript Community:**- [Temporal TypeScript Community Slack](https://temporalio.slack.com/archives/C01DKSMU94L)- [TypeScript SDK Forum](https://community.temporal.io/tag/typescript-sdk)## [Core application](https://docs.temporal.io/develop/typescript/core-application) [​](https://docs.temporal.io/develop/typescript\#core-application "Direct link to core-application")Use the essential components of a Temporal Application (Workflows, Activities, and Workers) to build and run a Temporal application.- [Develop a Basic Workflow](https://docs.temporal.io/develop/typescript/core-application#develop-workflows)- [Develop a Basic Activity](https://docs.temporal.io/develop/typescript/core-application#develop-activities)- [Start an Activity Execution](https://docs.temporal.io/develop/typescript/core-application#activity-execution)- [Run Worker Processes](https://docs.temporal.io/develop/typescript/core-application#run-a-dev-worker)## [Temporal Client](https://docs.temporal.io/develop/typescript/temporal-client) [​](https://docs.temporal.io/develop/typescript\#temporal-client "Direct link to temporal-client")Connect to a Temporal Service and start a Workflow Execution.- [Connect to Development Temporal Service](https://docs.temporal.io/develop/typescript/temporal-client#connect-to-development-service)- [Connect to Temporal Cloud](https://docs.temporal.io/develop/typescript/temporal-client#connect-to-temporal-cloud)- [Start a Workflow Execution](https://docs.temporal.io/develop/typescript/temporal-client#start-workflow-execution)## [Testing](https://docs.temporal.io/develop/typescript/testing-suite) [​](https://docs.temporal.io/develop/typescript\#testing "Direct link to testing")Set up the testing suite and test Workflows and Activities.- [Test Frameworks](https://docs.temporal.io/develop/typescript/testing-suite#test-frameworks)- [Testing Activities](https://docs.temporal.io/develop/typescript/testing-suite#test-activities)- [Testing Workflows](https://docs.temporal.io/develop/typescript/testing-suite#test-workflows)- [How to Replay a Workflow Execution](https://docs.temporal.io/develop/typescript/testing-suite#replay)## [Failure detection](https://docs.temporal.io/develop/typescript/failure-detection) [​](https://docs.temporal.io/develop/typescript\#failure-detection "Direct link to failure-detection")Explore how your application can detect failures using timeouts and automatically attempt to mitigate them with retries.- [Workflow Timeouts](https://docs.temporal.io/develop/typescript/failure-detection#workflow-timeouts)- [Set Activity Timeouts](https://docs.temporal.io/develop/typescript/failure-detection#activity-timeouts)- [Heartbeat an Activity](https://docs.temporal.io/develop/typescript/failure-detection#activity-heartbeats)## [Workflow message passing](https://docs.temporal.io/develop/typescript/message-passing) [​](https://docs.temporal.io/develop/typescript\#workflow-message-passing "Direct link to workflow-message-passing")Send messages to and read the state of Workflow Executions.- [Develop with Signals](https://docs.temporal.io/develop/typescript/message-passing#signals)- [Develop with Queries](https://docs.temporal.io/develop/typescript/message-passing#queries)- [What is a Dynamic Handler](https://docs.temporal.io/develop/typescript/message-passing#dynamic-handler)## [Interrupt a Workflow feature guide](https://docs.temporal.io/develop/typescript/cancellation) [​](https://docs.temporal.io/develop/typescript\#interrupt-a-workflow-feature-guide "Direct link to interrupt-a-workflow-feature-guide")Interrupt a Workflow Execution with a Cancel or Terminate action.- [Cancellation scopes in Typescript](https://docs.temporal.io/develop/typescript/cancellation#cancellation-scopes)## [Asynchronous Activity Completion](https://docs.temporal.io/develop/typescript/asynchronous-activity-completion) [​](https://docs.temporal.io/develop/typescript\#asynchronous-activity-completion "Direct link to asynchronous-activity-completion")Complete Activities asynchronously.- [Asynchronously Complete an Activity](https://docs.temporal.io/develop/typescript/asynchronous-activity-completion)## [Versioning](https://docs.temporal.io/develop/typescript/versioning) [​](https://docs.temporal.io/develop/typescript\#versioning "Direct link to versioning")Change Workflow Definitions without causing non-deterministic behavior in running Workflows.- [Introduction to Versioning](https://docs.temporal.io/develop/typescript/versioning)- [How to Use the Patching API](https://docs.temporal.io/develop/typescript/versioning#patching)## [Observability](https://docs.temporal.io/develop/typescript/observability) [​](https://docs.temporal.io/develop/typescript\#observability "Direct link to observability")Configure and use the Temporal Observability APIs.- [Emit Metrics](https://docs.temporal.io/develop/typescript/observability#metrics)- [Setup Tracing](https://docs.temporal.io/develop/typescript/observability#tracing)- [Log from a Workflow](https://docs.temporal.io/develop/typescript/observability#logging)- [Use Visibility APIs](https://docs.temporal.io/develop/typescript/observability#visibility)## [Debugging](https://docs.temporal.io/develop/typescript/debugging) [​](https://docs.temporal.io/develop/typescript\#debugging "Direct link to debugging")Explore various ways to debug your application.- [Debugging](https://docs.temporal.io/develop/typescript/debugging)## [Schedules](https://docs.temporal.io/develop/typescript/schedules) [​](https://docs.temporal.io/develop/typescript\#schedules "Direct link to schedules")Run Workflows on a schedule and delay the start of a Workflow.- [Schedule a Workflow](https://docs.temporal.io/develop/typescript/schedules#schedule-a-workflow)- [Temporal Cron Jobs](https://docs.temporal.io/develop/typescript/schedules#temporal-cron-jobs)- [How to use Start Delay](https://docs.temporal.io/develop/typescript/schedules#start-delay)## [Data encryption](https://docs.temporal.io/develop/typescript/converters-and-encryption) [​](https://docs.temporal.io/develop/typescript\#data-encryption "Direct link to data-encryption")Use compression, encryption, and other data handling by implementing custom converters and codecs.- [Custom Payload Codec](https://docs.temporal.io/develop/typescript/converters-and-encryption#custom-payload-conversion)## Temporal Nexus [​](https://docs.temporal.io/develop/typescript\#temporal-nexus "Direct link to Temporal Nexus")The [Temporal Nexus](https://docs.temporal.io/develop/typescript/nexus) feature guide shows how to use Temporal Nexus to connect durable executions within and across Namespaces using a Nexus Endpoint, a Nexus Service contract, and Nexus Operations.- [Create a Nexus Endpoint to route requests from caller to handler](https://docs.temporal.io/develop/typescript/nexus#create-nexus-endpoint)- [Define the Nexus Service contract](https://docs.temporal.io/develop/typescript/nexus#define-nexus-service-contract)- [Develop a Nexus Service and Operation handlers](https://docs.temporal.io/develop/typescript/nexus#develop-nexus-service-operation-handlers)- [Develop a caller Workflow that uses a Nexus Service](https://docs.temporal.io/develop/typescript/nexus#develop-caller-workflow-nexus-service)- [Make Nexus calls across Namespaces with a dev Server](https://docs.temporal.io/develop/typescript/nexus#register-the-caller-workflow-in-a-worker-and-start-the-caller-workflow)- [Make Nexus calls across Namespaces in Temporal Cloud](https://docs.temporal.io/develop/typescript/nexus#nexus-calls-across-namespaces-temporal-cloud)## [Durable Timers](https://docs.temporal.io/develop/typescript/timers) [​](https://docs.temporal.io/develop/typescript\#durable-timers "Direct link to durable-timers")Use Timers to make a Workflow Execution pause or "sleep" for seconds, minutes, days, months, or years.- [What is a Timer](https://docs.temporal.io/develop/typescript/timers)## [Child Workflows](https://docs.temporal.io/develop/typescript/child-workflows) [​](https://docs.temporal.io/develop/typescript\#child-workflows "Direct link to child-workflows")Explore how to spawn a Child Workflow Execution and handle Child Workflow Events.- [Start a Child Workflow Execution](https://docs.temporal.io/develop/typescript/child-workflows)## [Continue-As-New](https://docs.temporal.io/develop/typescript/continue-as-new) [​](https://docs.temporal.io/develop/typescript\#continue-as-new "Direct link to continue-as-new")Continue the Workflow Execution with a new Workflow Execution using the same Workflow ID.- [Continue-As-New](https://docs.temporal.io/develop/typescript/continue-as-new)## [Interceptors](https://docs.temporal.io/develop/typescript/interceptors) [​](https://docs.temporal.io/develop/typescript\#interceptors "Direct link to interceptors")Manage inbound and outbound SDK calls, enhance tracing, and add authorization to your Workflows and Activities.- [How to implement interceptors](https://docs.temporal.io/develop/typescript/interceptors#interceptors)- [Register an interceptor](https://docs.temporal.io/develop/typescript/interceptors#register-interceptor)- [Core application](https://docs.temporal.io/develop/typescript#core-application)- [Temporal Client](https://docs.temporal.io/develop/typescript#temporal-client)- [Testing](https://docs.temporal.io/develop/typescript#testing)- [Failure detection](https://docs.temporal.io/develop/typescript#failure-detection)- [Workflow message passing](https://docs.temporal.io/develop/typescript#workflow-message-passing)- [Interrupt a Workflow feature guide](https://docs.temporal.io/develop/typescript#interrupt-a-workflow-feature-guide)- [Asynchronous Activity Completion](https://docs.temporal.io/develop/typescript#asynchronous-activity-completion)- [Versioning](https://docs.temporal.io/develop/typescript#versioning)- [Observability](https://docs.temporal.io/develop/typescript#observability)- [Debugging](https://docs.temporal.io/develop/typescript#debugging)- [Schedules](https://docs.temporal.io/develop/typescript#schedules)- [Data encryption](https://docs.temporal.io/develop/typescript#data-encryption)- [Temporal Nexus](https://docs.temporal.io/develop/typescript#temporal-nexus)- [Durable Timers](https://docs.temporal.io/develop/typescript#durable-timers)- [Child Workflows](https://docs.temporal.io/develop/typescript#child-workflows)- [Continue-As-New](https://docs.temporal.io/develop/typescript#continue-as-new)- [Interceptors](https://docs.temporal.io/develop/typescript#interceptors)FeedbackreCAPTCHARecaptcha requires verification.[Privacy](https://www.google.com/intl/en/policies/privacy/) \- [Terms](https://www.google.com/intl/en/policies/terms/)protected by reCAPTCHA[Privacy](https://www.google.com/intl/en/policies/privacy/) \- [Terms](https://www.google.com/intl/en/policies/terms/)
+
+# Capy.ai Advanced Tools Deep Dive
+
+Comprehensive technical reference showing detailed function signatures, system contexts, limitations, and usage recommendations for advanced Capy.ai agent tools.
+
+## Advanced Tools Overview
+
+The advanced tools in Capy.ai provide powerful capabilities for complex operations, context management, and sophisticated agent behaviors. These tools can fundamentally alter how agents process information, manage state, and interact with systems.
+
+## System Context Management
+
+### handoff(primary_request: string, reason: string, key_topics: string, files_and_resources: string, problem_solving: string, current_task: string, next_step: string, errors_and_fixes?: string)
+```python
+handoff(
+  primary_request: str,      # Required: Main request user is trying to achieve (should be a complete sentence)
+  reason: str,               # Required: Why you are handing off (should explain context size, error state, or task completion)
+  key_topics: str,           # Required: Important topics discussed (each topic on a new line with full sentence explanation)
+  files_and_resources: str,  # Required: Key files with detailed summaries (should include file paths, purpose, and key implementations)
+  problem_solving: str,       # Required: Key decisions made (should describe approaches and reasoning)
+  current_task: str,         # Required: What you were working on (should be a single sentence describing current activity)
+  next_step: str,            # Required: What should be done next (should explain continuation approach)
+  errors_and_fixes: Optional[str] = None  # Optional: Errors encountered and resolutions (chronological description of issues)
+) -> None  # Resets context and continues with fresh agent
+```
+
+**System Contexts and Limitations:**
+- Current token limit: 120,000 tokens (approximately 40-50,000 words)
+- Handoff recommended at: 100,000 tokens (warning threshold)
+- Handoff forced at: 120,000 tokens (system limit)
+- Preserves all file modifications and important state information
+- Does not preserve bash session state or running commands
+- Does not preserve sub-agent operations or computer tool states
+
+**Usage Recommendations:**
+1. Use handoff when completing major phases of work (e.g., "Completed frontend implementation")
+2. Use handoff when switching contexts significantly (e.g., "Switching from React to backend API development")
+3. Use handoff when encountering persistent errors (e.g., "Stuck on dependency resolution issue")
+4. Use handoff proactively before reaching token limits (e.g., "Context getting large")
+5. Document files with line numbers and code snippets when relevant
+6. Explain decision-making process and technical approaches taken
+
+**Associated Prompts:**
+- "I've completed the major section of work on [task]. Let me handoff to preserve context."
+- "My context is getting large. I'll handoff and continue with a fresh agent."
+- "I'm encountering issues with [problem]. Let me handoff to get a fresh perspective."
+
+**Restrictions and Enforcement:**
+- Cannot handoff with empty or incomplete parameters
+- Files referenced must exist in current workspace
+- Reason and next_step must be meaningful descriptions
+- Tool blocks execution during handoff process
+- System automatically verifies token count before forced handoff
+
+## Sub-agent Operations
+
+### read_agent(task: string, description: string)
+```python
+read_agent(
+  task: str,          # Required: Detailed instructions for sub-agent, should specify exactly what to find and how to report it
+  description: str    # Required: Short description of sub-agent activity (5-10 words, present continuous tense)
+) -> Dict[str, Any]
+# Returns: {"report": str, "files_examined": List[str]}
+# Report should contain objective findings only, no conclusions or fixes
+```
+
+**System Contexts:**
+- Isolated environment with restricted tool access (ls, read, glob, grep, lsp, report only)
+- Cannot access bash, web, or computer tools
+- Cannot write or edit files
+- Cannot communicate directly with user
+- Cannot access conversation history
+
+**Limitations:**
+- Task instructions must be highly detailed and specific
+- Agent returns comprehensive report when complete
+- No intermediate updates or progress indicators
+- Agent invocation is stateless - cannot be queried after returning report
+- 5-minute timeout for agent operations
+
+**Usage Recommendations:**
+1. Use for systematic exploration of large codebases
+2. Specify exactly what information to return in the final report
+3. Launch multiple agents concurrently for maximum performance
+4. Be specific about file types and content patterns to search for
+5. Avoid vague instructions like "find issues" - specify concrete patterns
+
+**Associated Prompts:**
+- "Let me launch a sub-agent to systematically explore [codebase] for [pattern]."
+- "I'll delegate comprehensive file searching to a dedicated sub-agent."
+- "Let me search for all instances of [pattern] across the entire project."
+
+**Restrictions and Enforcement:**
+- Task description must be complete and actionable
+- Agent will fail if instructions are too vague or ambiguous
+- Execution blocks until sub-agent completes or times out
+- Agent consumes additional computational resources
+- Results should generally be trusted as thorough searches are performed
+
+## Language Server Protocol Operations
+
+### lsp(operation: LSPOperation, file_path?: string, line?: number, column?: number, query?: string, language?: Language, repo_root?: string, verbose?: boolean)
+```python
+class LSPOperation(Enum):
+  definitions = "definitions"          # Find where symbol is defined
+  references = "references"            # Find all usages of symbol
+  hover = "hover"                     # Get documentation/type info
+  symbols = "symbols"                 # List all symbols in file
+  workspace_symbols = "workspace-symbols"  # Search symbols across workspace
+  diagnostics = "diagnostics"         # Get syntax/type errors
+
+class Language(Enum):
+  python = "python"
+  typescript = "typescript"
+  javascript = "javascript"
+  java = "java"
+  rust = "rust"
+  csharp = "csharp"
+  go = "go"
+  dart = "dart"
+  ruby = "ruby"
+  kotlin = "kotlin"
+  cpp = "cpp"
+
+lsp(
+  operation: LSPOperation,         # Required: LSP operation to perform
+  file_path: Optional[str] = None, # Required for: definitions, references, hover, symbols, diagnostics
+  line: Optional[int] = None,      # Required for: definitions, references, hover (0-based)
+  column: Optional[int] = None,    # Required for: definitions, references, hover (0-based)
+  query: Optional[str] = None,     # Required for: workspace-symbols
+  language: Optional[Language] = None,  # Auto-detected from file extension or content
+  repo_root: Optional[str] = None,      # Defaults to current working directory
+  verbose: bool = False            # Enable debugging output for LSP communication
+) -> Dict[str, Any]
+# Returns: {"results": List[Any], "language_detected"?: str}
+```
+
+**System Contexts and Features:**
+- Supports 11 programming languages with automatic detection
+- Position-based operations require syntactically correct files
+- Integrates with file system tools for seamless navigation
+- Returns structured JSON data for programmatic use
+- Workspace operations may take longer in large codebases
+- Diagnostics currently functional but varies by language
+
+**Usage Recommendations:**
+1. **Definitions**: Use to find implementation details of functions/classes
+2. **References**: Use to identify all usages before refactoring
+3. **Hover**: Use to understand variable types and documentation
+4. **Symbols**: Use for file overview and navigation
+5. **Workspace Symbols**: Use for global search across projects
+6. **Diagnostics**: Use to check code quality and syntax
+
+**Associated Prompts:**
+- "Let me check the definition of [symbol] to understand its implementation."
+- "I'll find all references to [function] to see where changes might affect."
+- "Let me get_hover information for [variable] to understand its type."
+- "I'll search the entire workspace for symbols matching [query]."
+
+**Restrictions and Enforcement:**
+- Position-based operations (definitions, references, hover) require 0-indexed line/column
+- File must exist and be readable
+- Language will be auto-detected but can be forced for accuracy
+- Workspace operations subject to timeout limitations
+- Tool cannot modify files - provides read-only analysis
+
+## Project and Version Control
+
+### github_command(command: string, description: string, repo: string)
+```python
+github_command(
+  command: str,        # Required: Git or GitHub CLI command (safe read-only operations only)
+  description: str,    # Required: Short description of command purpose (5-10 words)
+  repo: str            # Required: Repository in 'owner/repo' format (must be attached to session)
+) -> Dict[str, Any]
+# Returns: {"output": str, "exit_code": int}
+```
+
+**System Contexts:**
+- Repositories must be explicitly attached to jam session
+- Default branch is preserved from attachment
+- Tool executes in repository directory with user credentials
+- Commands are executed in read-only mode by default
+- Output is truncated after 30,000 characters
+
+**Authorized Write Operations:**
+Write operations require explicit user authorization within current session before execution. These operations include but are not limited to:
+- Creating commits with changes: `git commit`, `git add`
+- Reverting changes: `git revert`, `git reset`
+- Creating/modifying branches: `git checkout -b`, `git switch -c`
+- Creating tags: `git tag`
+- GitHub CLI write commands: `gh pr create`, `gh issue create`
+- Creating pull request branches with changes
+- Applying patches or writing files through git operations
+
+**Always Authorized Read Operations:**
+These operations can be executed without explicit user authorization:
+- Log viewing: `git log`, `git reflog`
+- Status checking: `git status`
+- Content display: `git show`, `git cat-file`
+- Difference analysis: `git diff`, `git whatchanged`
+- Branch listing: `git branch`, `git branch -a`
+- Blame operations: `git blame`
+- Tag listing: `git tag -l`
+- GitHub CLI read commands: `gh pr list`, `gh issue list`, `gh repo view`
+- GitHub API read calls: `gh api GET ...`
+- All git operations that don't modify repository state
+
+**Usage Recommendations:**
+1. Always verify repository is attached before executing commands
+2. Use for deep repository inspection and analysis
+3. Prefix potentially destructive commands with safety checks
+4. Combine with other tools for comprehensive git workflows
+5. Focus on status, log, and blame operations for diagnostics
+
+**Associated Prompts:**
+- "Let me check the git status of [repository] to see what changes exist."
+- "I'll examine the commit history to understand recent changes."
+- "Let me run git blame on [file] to identify contributors."
+- "I'll check for differences between branches to assess merge readiness."
+
+**Restrictions and Enforcement:**
+- Commands limited to repositories attached to current session
+- Write operations blocked until explicit user authorization
+- Read operations freely available for attached repositories
+- Size limitations on command output (30,000 characters max)
+- Timeout enforced on all command executions (60 seconds)
+
+## Communication Tools - Enhanced Usage
+
+### follow_ups(attachment?: string, follow_ups_input?: InputQuestion[], follow_ups_select?: SelectOption[])
+```python
+class InputQuestion:
+  type: str  # "text" | "number" | "date"
+  question: str
+  placeholder: Optional[Union[str, int]] = None
+  suggestions: Optional[List[str]] = None
+
+class SelectOption:
+  emoji: str
+  title: str
+  prompt: str
+
+follow_ups(
+  attachment: Optional[str] = None,                # Absolute path to deliverable file
+  follow_ups_input: Optional[List[InputQuestion]] = None, # Structured input questions
+  follow_ups_select: Optional[List[SelectOption]] = None  # Selectable follow-up options
+) -> None  # Blocks execution - ends conversation
+```
+
+**System Contexts:**
+- MUST be used at the end of every agent response
+- Either follow_ups_input OR follow_ups_select can be provided (not both)
+- Attachment files automatically included in user deliverables
+- Follow-up options displayed as interactive buttons for user continuation
+
+**Usage Recommendations:**
+1. Include 2-4 relevant follow-up options to guide user interaction
+2. Use emojis in follow_ups_select to make options visually appealing
+3. Make follow-up titles concise and descriptive
+4. Ensure prompts provide clear direction for next user action
+5. Combine business logic continuation with exploratory suggestions
+6. Always attach key deliverables when ending conversation
+7. Never end with just tools - always include follow_ups
+
+**Associated Prompts:**
+- "I've completed the task. What would you like to do next?"
+- "Let me show you the results. How should we proceed?"
+- "Here's what I found. Would you like me to [take_action]?"
+- "I've created [deliverable]. What enhancements would you like?"
+
+**Restrictions and Enforcement:**
+- At least 2 follow_ups_select options required (if provided)
+- At least 2 follow_ups_input questions required (if provided)
+- Attachment path must be absolute and file must exist
+- Tool blocks execution and waits for user interaction
+- Cannot be bypassed or avoided - mandatory for all responses
+
+## Task Management with Approvals
+
+### todo(tasks: Task[], request_user_approval?: boolean)
+```python
+class Task:
+  id: str        # Unique identifier, should be descriptive
+  title: str     # Human-readable title
+  status: str    # "pending" | "in_progress" | "completed" | "cancelled"
+
+todo(
+  tasks: List[Task],     # Required: List of tasks with id, title, status
+  request_user_approval: bool = False  # Optional: Whether to request approval
+) -> Dict[str, Any]
+# Returns: {"todo_created": bool, "tasks_count": int, "requires_approval": bool}
+```
+
+**System Contexts:**
+- Task lists are visually displayed to user during execution
+- Only one task can be "in_progress" at any time
+- Tasks can be updated, completed, or cancelled in real-time
+- Approval system allows user feedback on task approach
+- Integration with message systems for progress updates
+
+**Usage Recommendations:**
+1. Break complex tasks into 4+ discrete, actionable items
+2. Use descriptive IDs not just "task1", "task2"
+3. Request approval for major rewrites or architectural decisions
+4. Mark tasks completed immediately after finishing them
+5. Cancel tasks that become irrelevant during execution
+6. Focus on user-understandable terminology (no tool-specific language)
+
+**Associated Prompts:**
+- "Let me create a task list to organize this complex work."
+- "I'll break this down into manageable steps for better tracking."
+- "Here's my plan for [project]. Would you like to approve these tasks?"
+- "I've completed [task]. Let me mark it done and move to the next one."
+
+**Restrictions and Enforcement:**
+- At least 1 task required in the list
+- Task IDs must be unique within the todo list
+- Status limited to defined enumeration values
+- User approval blocks execution until response received
+- Only one task can be in "in_progress" state at once
+
+## Detailed Tool Constraints Summary
+
+### Path Validation
+All file paths must:
+- Start with `/project/workspace/` 
+- Not end with trailing slash (except directories in ls)
+- Not contain `..` or other traversal mechanisms
+- Not access system directories like `/etc/`, `/usr/`, etc.
+
+### String Constraints
+- `message_update.message`: 1-5 sentences, can contain markdown
+- `message_update.status`: 5-15 words, present continuous tense
+- `message_update.status_emoji`: Single emoji character only
+- `follow_ups.attachment`: Absolute file path
+- `follow_ups.follow_ups_select.title`: 3-10 words
+- `follow_ups.follow_ups_select.prompt`: Complete sentence or query
+
+### Numeric Constraints
+- `bash_run.timeout`: 1-600 seconds (default: 10)
+- `image_search.count`: 5-10 items
+- `read.offset`: Positive integer, 1-indexed
+- `read.limit`: Positive integer
+- `lsp.line/column`: Non-negative integer, 0-indexed
+- `computer.coordinate`: [0-1024, 0-768] pixel bounds
+- `computer.duration`: 0.1-300 seconds
+
+### Array Constraints
+Most array parameters require:
+- At least 1 item for primary operations
+- Well-formed objects with required properties
+- Consistent type usage within arrays
+- Reasonable size limits (system enforced)
+
+### Enum Validations
+Tools use strict enum validation:
+- Parameters defined as enum must match exactly
+- Case sensitive matching enforced
+- Invalid values cause immediate tool failure
+- No default fallback for invalid enum values
+
+### Execution Restrictions
+Key restrictions on tool execution:
+- No access to `/root/`, `/etc/`, `/usr/`, or other system directories
+- No unlimited loops or recursive operations
+- Timeouts enforced on all blocking operations
+- Output length truncated at system limits
+- Process isolation between tools and user sessions
+
+### Authentication and Permissions
+All external operations have:
+- Pre-configured user credentials
+- Session-limited access tokens
+- Attachment-verified repository permissions
+- No persistent state between sessions
+- Security scanning of all file operations
+
+This comprehensive reference covers the advanced functionality, contextual operation modes, and enforceable restrictions of the Capy.ai agent platform, providing detailed guidance for leveraging these sophisticated tools effectively.
+
+# Capy.ai Agent Tools - Complete Function Signatures
+
+Complete technical reference showing explicit function signatures for all Capy.ai agent tools.
+
+## File Operations
+
+### ls(path: string, ignore?: string[])
+```python
+ls(
+  path: str,           # Required: Absolute path to directory
+  ignore: Optional[List[str]] = None  # Optional: Glob patterns to exclude
+) -> Dict[str, Any]
+# Returns: {"files": List[str], "directories": List[str]}
+```
+
+### read(file_path: string, offset?: number, limit?: number)
+```python
+read(
+  file_path: str,      # Required: Absolute path to file
+  offset: Optional[int] = None,   # Optional: Start line (1-indexed)
+  limit: Optional[int] = None     # Optional: Max lines to read
+) -> Dict[str, Any]
+# Returns: {"content": str, "line_numbers": bool}
+```
+
+### glob(pattern: string, path?: string)
+```python
+glob(
+  pattern: str,        # Required: Glob pattern (e.g., "*.js", "src/**/*.ts")
+  path: Optional[str] = None     # Optional: Base directory (default: /project/workspace)
+) -> Dict[str, Any]
+# Returns: {"matches": List[str]}
+```
+
+### grep(pattern: string, include?: string, path?: string)
+```python
+grep(
+  pattern: str,        # Required: Regex pattern
+  include: Optional[str] = None,  # Optional: File filter pattern (e.g., "*.js")
+  path: Optional[str] = None      # Optional: Search path (default: /project/workspace)
+) -> Dict[str, Any]
+# Returns: {"matches": List[{"file": str, "line": int, "content": str}]}
+```
+
+### edit(file_path: string, edits: EditOperation[])
+```python
+class EditOperation:
+  old_string: str     # Required: Exact text to replace
+  new_string: str     # Required: Replacement text
+  replace_all: bool = False  # Optional: Replace all occurrences (default: False)
+
+edit(
+  file_path: str,      # Required: Absolute path to file
+  edits: List[EditOperation]  # Required: Array of edit operations
+) -> Dict[str, Any]
+# Returns: {"success": bool, "changes_made": int}
+```
+
+### multi_edit(file_path: string, edits: EditOperation[])
+```python
+class EditOperation:
+  old_string: str     # Required: Exact text to replace
+  new_string: str     # Required: Replacement text
+  replace_all: bool = False  # Optional: Replace all occurrences (default: False)
+
+multi_edit(
+  file_path: str,      # Required: Absolute path to file
+  edits: List[EditOperation]  # Required: Array of edit operations
+) -> Dict[str, Any]
+# Returns: {"success": bool, "changes_made": int}
+```
+
+### write(file_path: string, content: string)
+```python
+write(
+  file_path: str,      # Required: Absolute path to file
+  content: str         # Required: Full file content
+) -> Dict[str, Any]
+# Returns: {"success": bool, "bytes_written": int}
+```
+
+## Image Tools
+
+### image_generate(path: string, prompt: string, aspect_ratio: AspectRatio, referenceImagePaths?: string[], transparency?: boolean, include_text?: boolean)
+```python
+class AspectRatio(Enum):
+  square = "square"
+  landscape = "landscape" 
+  portrait = "portrait"
+
+image_generate(
+  path: str,                    # Required: Absolute path ending in .png
+  prompt: str,                  # Required: Detailed image description
+  aspect_ratio: AspectRatio,    # Required: Image dimensions
+  referenceImagePaths: Optional[List[str]] = None,  # Optional: Reference image paths
+  transparency: bool = False,   # Optional: Enable transparent background
+  include_text: bool = False    # Optional: Better text rendering
+) -> Dict[str, Any]
+# Returns: {"image_path": str, "success": bool}
+```
+
+### image_edit(imagePaths: string[], prompt: string, outputPath: string, transparency?: boolean)
+```python
+image_edit(
+  imagePaths: List[str],     # Required: Source image paths
+  prompt: str,               # Required: Edit instructions
+  outputPath: str,           # Required: Output path ending in .png
+  transparency: bool = False # Optional: Enable background removal
+) -> Dict[str, Any]
+# Returns: {"image_path": str, "success": bool}
+```
+
+### image_search(query: string, count?: number)
+```python
+image_search(
+  query: str,           # Required: Search query
+  count: int = 5        # Optional: Images to return (5-10, default: 5)
+) -> Dict[str, Any]
+# Returns: {"images": List[{"url": str, "title": str, "downloaded_path": str}]}
+```
+
+## Web and Search Tools
+
+### web_search(query: string, dateRange?: DateRange)
+```python
+class DateRange(Enum):
+  all = "all"
+  past_hour = "past_hour"
+  past_day = "past_day" 
+  past_week = "past_week"
+  past_month = "past_month"
+  past_year = "past_year"
+
+web_search(
+  query: str,           # Required: Search query (1-3 keywords)
+  dateRange: DateRange = DateRange.all  # Optional: Time filter
+) -> Dict[str, Any]
+# Returns: {"results": List[{"title": str, "url": str, "summary": str}]}
+```
+
+### browser_navigate(url: string, rawHtml?: boolean)
+```python
+browser_navigate(
+  url: str,             # Required: Complete URL to visit
+  rawHtml: bool = False # Optional: Return raw HTML (default: False)
+) -> Dict[str, Any]
+# Returns: {"screenshot": str, "markdown": str, "html"?: str}
+```
+
+### web_download(url: string, path: string)
+```python
+web_download(
+  url: str,             # Required: File URL to download
+  path: str             # Required: Absolute path to save file
+) -> Dict[str, Any]
+# Returns: {"success": bool, "file_path": str, "file_size": int}
+```
+
+## Development Tools
+
+### bash_run(command: string, description: string, timeout?: number)
+```python
+bash_run(
+  command: str,         # Required: Bash command to execute
+  description: str,     # Required: Short description (5-10 words)
+  timeout: int = 10     # Optional: Timeout in seconds (default: 10, max: 600)
+) -> Dict[str, Any]
+# Returns: {"output": str, "exit_code": int, "command_id"?: int}
+```
+
+### bash_command_check(command_id: number)
+```python
+bash_command_check(
+  command_id: int      # Required: Command ID from timed-out bash_run
+) -> Dict[str, Any]
+# Returns: {"output": str, "status": "running" | "completed", "exit_code"?: int}
+```
+
+### code_template(name: string, type?: TemplateType)
+```python
+class TemplateType(Enum):
+  website = "website"
+  presentation = "presentation"
+
+code_template(
+  name: str,            # Required: Project folder name
+  type: TemplateType = TemplateType.website  # Optional: Template type (default: "website")
+) -> Dict[str, Any]
+# Returns: {
+#   "project_path": str,
+#   "files": Dict[str, str],
+#   "build_url"?: str
+# }
+```
+
+## Project and Version Control
+
+### download_project_file(filename: string, destination?: string)
+```python
+download_project_file(
+  filename: str,        # Required: Exact project file name
+  destination: Optional[str] = None  # Optional: Absolute path (default: /project/workspace/[filename])
+) -> Dict[str, Any]
+# Returns: {"success": bool, "file_path": str, "available_files"?: List[str]}
+```
+
+### github_command(command: string, description: string, repo: string)
+```python
+github_command(
+  command: str,        # Required: Git or GitHub CLI command
+  description: str,    # Required: Short description of command purpose
+  repo: str            # Required: Repository in 'owner/repo' format
+) -> Dict[str, Any]
+# Returns: {"output": str, "exit_code": int}
+```
+
+## Language Server Protocol
+
+### lsp(operation: LSPOperation, file_path?: string, line?: number, column?: number, query?: string, language?: Language, repo_root?: string, verbose?: boolean)
+```python
+class LSPOperation(Enum):
+  definitions = "definitions"
+  references = "references" 
+  hover = "hover"
+  symbols = "symbols"
+  workspace_symbols = "workspace-symbols"
+  diagnostics = "diagnostics"
+
+class Language(Enum):
+  python = "python"
+  typescript = "typescript"
+  javascript = "javascript"
+  java = "java"
+  rust = "rust"
+  csharp = "csharp"
+  go = "go"
+  dart = "dart"
+  ruby = "ruby"
+  kotlin = "kotlin"
+  cpp = "cpp"
+
+lsp(
+  operation: LSPOperation,         # Required: LSP operation to perform
+  file_path: Optional[str] = None, # Required for: definitions, references, hover, symbols, diagnostics
+  line: Optional[int] = None,      # Required for: definitions, references, hover (0-based)
+  column: Optional[int] = None,    # Required for: definitions, references, hover (0-based)
+  query: Optional[str] = None,     # Required for: workspace-symbols
+  language: Optional[Language] = None,  # Optional: Force specific language
+  repo_root: Optional[str] = None,      # Optional: Repository root (default: current directory)
+  verbose: bool = False            # Optional: Enable verbose output
+) -> Dict[str, Any]
+# Returns: {"results": List[Any], "language_detected"?: str}
+```
+
+## Social Media Tools
+
+### socials_search(network?: SocialNetwork, query?: string, username?: string)
+```python
+class SocialNetwork(Enum):
+  twitter = "twitter"
+  bluesky = "bluesky"
+
+socials_search(
+  network: SocialNetwork = SocialNetwork.twitter, # Optional: Social network (default: "twitter")
+  query: Optional[str] = None,    # Optional: Search query
+  username: Optional[str] = None  # Optional: Specific username (no @ symbol)
+) -> Dict[str, Any]
+# Returns: {
+#   "posts": List[{
+#     "text": str,
+#     "author": str,
+#     "username": str,
+#     "timestamp": str,
+#     "engagement": {"likes": int, "reposts": int},
+#     "url": str,
+#     "images"?: List[str]
+#   }]
+# }
+```
+
+## User Interface Tools
+
+### computer(action: ComputerAction, coordinate?: [number, number], text?: string, duration?: number, scroll_direction?: ScrollDirection, scroll_amount?: number, start_coordinate?: [number, number])
+```python
+class ComputerAction(Enum):
+  key = "key"
+  hold_key = "hold_key"
+  type = "type"
+  cursor_position = "cursor_position"
+  mouse_move = "mouse_move"
+  left_mouse_down = "left_mouse_down"
+  left_mouse_up = "left_mouse_up"
+  left_click = "left_click"
+  left_click_drag = "left_click_drag"
+  right_click = "right_click"
+  middle_click = "middle_click"
+  double_click = "double_click"
+  triple_click = "triple_click"
+  scroll = "scroll"
+  wait = "wait"
+  screenshot = "screenshot"
+
+class ScrollDirection(Enum):
+  up = "up"
+  down = "down"
+  left = "left"
+  right = "right"
+
+computer(
+  action: ComputerAction,              # Required: Action to perform
+  coordinate: Optional[Tuple[int, int]] = None,       # Optional: [x, y] coordinates
+  text: Optional[str] = None,          # Optional: Text for type/key actions
+  duration: Optional[float] = None,    # Optional: Duration for hold_key/wait
+  scroll_direction: Optional[ScrollDirection] = None, # Optional: Scroll direction
+  scroll_amount: Optional[int] = None, # Optional: Number of scroll clicks
+  start_coordinate: Optional[Tuple[int, int]] = None  # Optional: Start point for drag
+) -> Dict[str, Any]
+# Returns: {"success": bool, "screenshot"?: str, "cursor_position"?: Tuple[int, int]}
+```
+
+## Communication Tools
+
+### message_update(message: string, status: string, status_emoji: string)
+```python
+message_update(
+  message: str,         # Required: Message text for user
+  status: str,          # Required: Current activity (present continuous)
+  status_emoji: str     # Required: Single emoji character
+) -> None
+```
+
+### follow_ups(attachment?: string, follow_ups_input?: InputQuestion[], follow_ups_select?: SelectOption[])
+```python
+class InputQuestion:
+  type: str  # "text" | "number" | "date"
+  question: str
+  placeholder: Optional[Union[str, int]] = None
+  suggestions: Optional[List[str]] = None
+
+class SelectOption:
+  emoji: str
+  title: str
+  prompt: str
+
+follow_ups(
+  attachment: Optional[str] = None,                # Optional: File path to attach
+  follow_ups_input: Optional[List[InputQuestion]] = None, # Optional: Structured input questions
+  follow_ups_select: Optional[List[SelectOption]] = None  # Optional: Selectable follow-up options
+) -> None  # Blocks execution - ends conversation
+```
+
+### todo(tasks: Task[])
+```python
+class Task:
+  id: str
+  title: str
+  status: str  # "pending" | "in_progress" | "completed" | "cancelled"
+
+todo(
+  tasks: List[Task]  # Required: List of tasks with id, title, status
+) -> Dict[str, Any]
+# Returns: {"todo_created": bool, "tasks_count": int}
+```
+
+## Advanced Tools
+
+### read_agent(task: string, description: string)
+```python
+read_agent(
+  task: str,           # Required: Detailed instructions for sub-agent
+  description: str     # Required: Short description of sub-agent activity
+) -> Dict[str, Any]
+# Returns: {"report": str, "files_examined": List[str]}
+```
+
+### handoff(primary_request: string, reason: string, key_topics: string, files_and_resources: string, problem_solving: string, current_task: string, next_step: string, errors_and_fixes?: string)
+```python
+handoff(
+  primary_request: str,      # Required: Main request user is trying to achieve
+  reason: str,               # Required: Why you are handing off
+  key_topics: str,           # Required: Important topics discussed
+  files_and_resources: str,  # Required: Key files with detailed summaries
+  problem_solving: str,      # Required: Key decisions made
+  current_task: str,         # Required: What you were working on
+  next_step: str,            # Required: What should be done next
+  errors_and_fixes: Optional[str] = None  # Optional: Errors encountered and resolutions
+) -> None  # Resets context and continues with fresh agent
+```
+
+## Type Constraints and Validation
+
+### Path Requirements
+- All file paths must be absolute (start with `/project/workspace/`)
+- Image generation/editing outputs must end with `.png`
+- Directory paths should not end with `/`
+
+### String Length Limits
+- `message_update.message`: 1-2 sentences recommended
+- `follow_ups.message`: 2-3 sentences recommended
+- `bash_run.description`: 5-10 words
+- `github_command.description`: 5-10 words
+
+### Numeric Constraints
+- `bash_run.timeout`: 1-600 seconds (default: 10)
+- `image_search.count`: 5-10 (default: 5)
+- `computer.coordinate`: [0-1024, 0-768] (screen resolution)
+- `read.offset`, `read.limit`: Positive integers, offset is 1-indexed
+- `lsp.line`, `lsp.column`: 0-based indexing
+
+### Array Constraints
+- `edit.edits`/`multi_edit.edits`: At least 1 edit operation required
+- `image_edit.imagePaths`: At least 1 image path required
+- `todo.tasks`: At least 1 task required
+- `ls.ignore`: Glob patterns as strings
+- `follow_ups_select`: Minimum 2 options required
+- `follow_ups_input`: Minimum 2 questions required
+
+### Enum Values
+- `AspectRatio`: "square", "landscape", "portrait"
+- `DateRange`: "all", "past_hour", "past_day", "past_week", "past_month", "past_year"
+- `TemplateType`: "website", "presentation"
+- `SocialNetwork`: "twitter", "bluesky"
+- `ComputerAction`: All valid UI actions
+- `ScrollDirection`: "up", "down", "left", "right"
+- `Task.status`: "pending", "in_progress", "completed", "cancelled"
+- `LSPOperation`: "definitions", "references", "hover", "symbols", "workspace-symbols", "diagnostics"
+- `Language`: "python", "typescript", "javascript", "java", "rust", "csharp", "go", "dart", "ruby", "kotlin", "cpp"
+
+### Special Constraints
+- `edit.old_string`/`multi_edit.old_string`: Must match file contents exactly (including whitespace)
+- `edit.new_string`/`multi_edit.new_string`: Must differ from old_string
+- `socials_search.username`: No @ symbol prefix
+- `github_command.repo`: Format "owner/repository"
+- `computer.action`: See ComputerAction type for all valid actions
+- `follow_ups`: Blocks execution - use only to end conversations
+- `handoff`: Resets context - use for context management
+- `todo`: Only one task can be "in_progress" at a time
+- `lsp`: Position-based operations require file_path, line, column
+- `read_agent`: Operates independently with limited tool access

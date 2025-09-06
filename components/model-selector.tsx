@@ -11,6 +11,8 @@ import {
   ModelSelectorBase,
   type ModelSelectorBaseItem,
 } from '@/components/model-selector-base';
+import { TextMorphDropdown } from '@/components/model-selector/TextMorphDropdown';
+import { EnhancedTextMorphDropdown } from '@/components/model-selector/EnhancedTextMorphDropdown';
 
 export function PureModelSelector({
   selectedModelId,
@@ -21,6 +23,13 @@ export function PureModelSelector({
   onModelChangeAction?: (modelId: ModelId) => void;
   className?: string;
 }) {
+  // Optional: enable alternate dropdown UX via env flags
+  if (process.env.NEXT_PUBLIC_USE_ENHANCED_SELECTOR === 'true') {
+    return <EnhancedTextMorphDropdown />;
+  }
+  if (process.env.NEXT_PUBLIC_USE_TEXTMORPH_SELECTOR === 'true') {
+    return <TextMorphDropdown />;
+  }
   const { data: session } = useSession();
   const isAnonymous = !session?.user;
 

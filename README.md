@@ -1,10 +1,12 @@
 <div align="center">
 
-<img src="public/icon.svg" alt="Sparka AI" width="64" height="64">
+<img src="public/opulent-logo_light.png" alt="Opulent OS" width="64" height="64">
 
-# Sparka AI
 
-**AI for everyone, from everyone**
+# Opulent OS
+
+**The new standard in operating systems**
+
 
 *Multi-provider AI Chat - access Claude, ChatGPT, Gemini, and Grok with advanced features, open-source and production-ready.*
 
@@ -104,10 +106,39 @@ Sparka AI is built with modern technologies for scalability and performance:
 Visit [http://localhost:3000](http://localhost:3000) to start using Sparka AI locally.
 
 
+## ⏱ Temporal Integration
+
+The app optionally integrates with Temporal for durable chat workflows, tool orchestration, and approvals.
+
+- Env vars: set `TEMPORAL_ADDRESS` and `TEMPORAL_NAMESPACE` (see `.env.example`).
+- Start a worker locally:
+  ```bash
+  bun run temporal:worker:chat
+  ```
+- API routes used by the UI:
+  - `POST /api/temporal/start-chat` → starts `chatWorkflow`, returns `{ workflowId }`.
+  - `POST /api/temporal/update-model` → signals model updates to a chat workflow.
+  - `POST /api/temporal/approvals/request` → signals an approval request; returns an `approvalWorkflowId`.
+  - `GET /api/temporal/approvals/pending?approvalWorkflowId=...` → lists pending approvals.
+  - `POST /api/temporal/approvals/approve` → approve/deny a pending request.
+
+Using Temporal CLI locally:
+- Start a dev server: `temporal server start-dev --namespace default`
+- List open workflows: `temporal workflow list --open`
+- Describe a workflow: `temporal workflow describe --workflow-id <id>`
+- Query a workflow (example current model):
+  `temporal workflow query --type getCurrentModel --workflow-id <id>`
+- Signal a workflow (example update model):
+  `temporal workflow signal --signal updateModel --workflow-id <id> --input '{"model":"gpt-4o-mini","provider":"openai"}'`
+
+Feature flags:
+- `NEXT_PUBLIC_USE_TEXTMORPH_SELECTOR=true` enables the animated model selector.
+- `NEXT_PUBLIC_USE_ENHANCED_SELECTOR=true` enables an approval-aware selector variant.
+
+
 ## 🙏 Acknowledgements
 
 Sparka AI was built on the shoulders of giants. We're deeply grateful to these outstanding open source projects:
 
 - **[Vercel AI Chatbot](https://github.com/vercel/ai-chatbot)** - Core architecture and AI SDK integration patterns
 - **[Scira](https://github.com/zaidmukaddam/scira)** - AI-powered search engine
-

@@ -7,8 +7,8 @@ import { modelsData, providers } from '@/lib/models/models.generated';
 const totalModels = modelsData.length;
 const totalProviders = providers.length;
 
-const pageTitle = `Models | Sparka AI`;
-const pageDescription = `Browse ${totalModels} models across ${totalProviders} providers from Vercel AI Gateway in Sparka AI. Filter and compare by provider, context window, and pricing.`;
+const pageTitle = `Models | Opulent OS`;
+const pageDescription = `Browse ${totalModels} models across ${totalProviders} providers from Vercel AI Gateway in Opulent OS. Filter and compare by provider, context window, and pricing.`;
 
 export const metadata: Metadata = {
   title: pageTitle,
