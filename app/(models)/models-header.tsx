@@ -47,7 +47,7 @@ function PureModelsHeader({ className }: { className?: string }) {
             height={24}
             className="size-6"
           />
-          <span className="hidden sm:inline">Opulent OS</span>
+          <span className="hidden sm:inline">Opulent Lite</span>
         </span>
       </Link>
 
@@ -79,6 +79,17 @@ function PureModelsHeader({ className }: { className?: string }) {
           )}
         >
           Compare
+        </Link>
+        <Link
+          href="/compare/qwen/qwen3-max/openai/gpt-5"
+          className={cn(
+            'text-sm font-medium transition-colors hover:text-foreground',
+            pathname?.startsWith('/compare/qwen/qwen3-max/openai/gpt-5')
+              ? 'text-foreground'
+              : 'text-muted-foreground',
+          )}
+        >
+          Featured Compare
         </Link>
       </nav>
 
@@ -122,6 +133,17 @@ function PureModelsHeader({ className }: { className?: string }) {
                   className={cn(isActive('/compare') && 'font-semibold')}
                 >
                   Compare
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/compare/qwen/qwen3-max/openai/gpt-5"
+                  className={cn(
+                    pathname?.startsWith('/compare/qwen/qwen3-max/openai/gpt-5') &&
+                      'font-semibold',
+                  )}
+                >
+                  Featured Compare
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>

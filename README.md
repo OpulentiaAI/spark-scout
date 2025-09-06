@@ -138,6 +138,56 @@ Feature flags:
 
 ## 🙏 Acknowledgements
 
+## Vercel Deployment
+
+- Set environment variables in Vercel Project Settings → Environment Variables:
+  - `AUTH_SECRET` (required for Auth.js). Generate with:
+    - macOS/Linux: `openssl rand -base64 32`
+    - Node: `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`
+  - Provider keys as needed (e.g. `OPENAI_API_KEY`, `FIRECRAWL_API_KEY`, `TAVILY_API_KEY`).
+  - Optional Temporal envs (`TEMPORAL_ADDRESS`, `TEMPORAL_NAMESPACE`) if using serverless APIs to talk to Temporal.
+
+- Connect the repo to Vercel and deploy. The Next.js app runs on Vercel.
+- Temporal Worker: run separately (e.g., a server, Fly.io, Render, or a background process) using:
+  - `bun run temporal:worker:chat`
+  - Point it at your Temporal service via `TEMPORAL_ADDRESS`/`TEMPORAL_NAMESPACE`.
+
+## Railway Deployment (Temporal)
+
+Use Railway for the Temporal service and the worker; deploy the Next.js frontend to Vercel.
+
+1) Temporal service (Temporalite on Railway)
+- Create a new Railway service using the official Temporalite image:
+  - Service name: `temporalite`
+  - Image: `temporalio/temporalite:latest`
+  - Start command:
+    ```bash
+    temporalite start --namespace default --port 0.0.0.0:7233
+    ```
+- Expose TCP 7233. Railway will provide a TCP endpoint (host:port). Note it as `TEMPORAL_ADDRESS`.
+
+2) Temporal Worker service (this repo)
+- Add a service in the same Railway project using the included Dockerfile:
+  - Dockerfile: `temporal/worker.Dockerfile`
+  - Start command: inherited (`bun run temporal:worker:chat`)
+  - Env vars:
+    - `TEMPORAL_ADDRESS`: set to the Temporalite TCP endpoint host:port
+    - `TEMPORAL_NAMESPACE=default`
+    - `TEMPORAL_TLS=false` (Temporalite does not use TLS)
+    - Provider keys as needed for tools (OPENAI_API_KEY, etc.)
+
+3) Vercel (frontend + API routes)
+- In Vercel Project Settings → Environment Variables set:
+  - `TEMPORAL_ADDRESS`: same Railway Temporalite TCP endpoint (host:port)
+  - `TEMPORAL_NAMESPACE=default`
+  - `TEMPORAL_TLS=false`
+  - `AUTH_SECRET` and provider keys
+- The API routes will connect to Railway’s Temporalite using these envs.
+
+Notes
+- For Temporal Cloud or a TLS-enabled server, set `TEMPORAL_TLS=true` and supply the appropriate certificates per Temporal docs.
+- You can also use the Temporal CLI locally to inspect workflows while developing.
+
 Sparka AI was built on the shoulders of giants. We're deeply grateful to these outstanding open source projects:
 
 - **[Vercel AI Chatbot](https://github.com/vercel/ai-chatbot)** - Core architecture and AI SDK integration patterns

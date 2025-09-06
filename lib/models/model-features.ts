@@ -616,6 +616,25 @@ const customModelFeatures: Record<CustomModelFeaturesModelId, ModelFeatures> = {
     },
   },
 
+  // Qwen provider (OpenRouter routing)
+  'qwen/qwen3-max': {
+    reasoning: false,
+    toolCall: true,
+    releaseDate: new Date('2025-09-05'),
+    input: {
+      image: false,
+      text: true,
+      pdf: false,
+      audio: false,
+      video: false,
+    },
+    output: {
+      image: false,
+      text: true,
+      audio: false,
+    },
+  },
+
   'google/gemini-2.5-flash-image-preview': {
     reasoning: false,
     toolCall: false,

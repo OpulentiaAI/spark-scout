@@ -118,7 +118,7 @@ export function getImageModelDefinition(
   return model;
 }
 
-export const DEFAULT_CHAT_MODEL: ModelId = 'openai/gpt-5-mini';
+export const DEFAULT_CHAT_MODEL: ModelId = 'openai/gpt-5';
 export const DEFAULT_PDF_MODEL: ModelId = 'openai/gpt-5-mini';
 export const DEFAULT_TITLE_MODEL: ModelId = 'openai/gpt-5-nano';
 export const DEFAULT_ARTIFACT_MODEL: ModelId = 'openai/gpt-5-nano';

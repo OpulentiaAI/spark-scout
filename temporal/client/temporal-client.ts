@@ -8,14 +8,16 @@ export class TemporalClientManager {
 
     const address = process.env.TEMPORAL_ADDRESS || 'localhost:7233';
     const namespace = process.env.TEMPORAL_NAMESPACE || 'default';
+    const tlsEnv = (process.env.TEMPORAL_TLS || '').toLowerCase();
+    const useTLS = tlsEnv === 'true' || tlsEnv === '1';
 
     const connection = await Connection.connect({
       address,
-      tls: process.env.NODE_ENV === 'production' ? {} : undefined,
+      // Allow non-TLS in production when connecting to self-hosted Temporal/Temporalite
+      tls: useTLS ? {} : undefined,
     });
 
     clientInstance = new Client({ connection, namespace });
     return clientInstance;
   }
 }
-

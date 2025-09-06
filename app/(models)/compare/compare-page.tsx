@@ -18,11 +18,15 @@ export default function ComparePage() {
   }, [params]);
 
   const [leftModelId, setLeftModelId] = useState<string | null>(() => {
-    return segments.length >= 2 ? `${segments[0]}/${segments[1]}` : null;
+    if (segments.length >= 2) return `${segments[0]}/${segments[1]}`;
+    // Featured default when no slug is provided
+    return 'qwen/qwen3-max';
   });
 
   const [rightModelId, setRightModelId] = useState<string | null>(() => {
-    return segments.length >= 4 ? `${segments[2]}/${segments[3]}` : null;
+    if (segments.length >= 4) return `${segments[2]}/${segments[3]}`;
+    // Reasonable default comparison target
+    return 'openai/gpt-5';
   });
 
   const leftModel: ModelDefinition | null = useMemo(() => {

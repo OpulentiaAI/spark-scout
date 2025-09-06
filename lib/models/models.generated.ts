@@ -12,6 +12,7 @@ export const providers = [
   'moonshotai',
   'morph',
   'openai',
+  'qwen',
   'perplexity',
   'vercel',
   'xai',
@@ -98,6 +99,7 @@ export const models = [
   'openai/o3',
   'openai/o3-mini',
   'openai/o4-mini',
+  'qwen/qwen3-max',
   'perplexity/sonar',
   'perplexity/sonar-pro',
   'perplexity/sonar-reasoning',
@@ -152,6 +154,21 @@ export const modelsData: ModelData[] = [
     pricing: {
       input: '0.00000006',
       output: '0.00000024',
+    },
+  },
+  {
+    id: 'qwen/qwen3-max',
+    object: 'model',
+    owned_by: 'qwen',
+    name: 'Qwen3 Max',
+    description:
+      'Qwen3-Max is an updated release built on the Qwen3 series, offering major improvements in reasoning, instruction following, multilingual support, and long-tail knowledge coverage. Optimized for RAG and tool calling; no dedicated thinking mode.',
+    context_window: 256000,
+    max_tokens: 32800,
+    type: 'language',
+    pricing: {
+      input: '0.0000012',
+      output: '0.000006',
     },
   },
   {
