@@ -1,4 +1,4 @@
-import { Worker } from '@temporalio/worker';
+import { Worker, NativeConnection } from '@temporalio/worker';
 import { Context } from '@temporalio/activity';
 import { createRequire } from 'node:module';
 
@@ -83,7 +83,15 @@ const activities = {
 };
 
 async function createChatWorker() {
+  // Create connection to Temporal server
+  const connection = await NativeConnection.connect({
+    address: process.env.TEMPORAL_ADDRESS || 'localhost:7233',
+    tls: process.env.TEMPORAL_TLS === 'true' ? {} : false,
+  });
+
   return await Worker.create({
+    connection,
+    namespace: process.env.TEMPORAL_NAMESPACE || 'default',
     workflowsPath: require.resolve('./workflows'),
     activities,
     taskQueue: process.env.TEMPORAL_TASK_QUEUE || 'chat-processing',
