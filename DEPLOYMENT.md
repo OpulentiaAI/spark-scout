@@ -34,6 +34,11 @@ Option B — Temporal Cloud (production)
   - TEMPORAL_API_KEY: <temporal cloud API key>
 - Provider keys as needed (OPENAI_API_KEY, FIRECRAWL_API_KEY, etc.)
 
+Troubleshooting: Docker build context
+- If your build fails with an error like "/package.json": not found at a `COPY package.json bun.lock ./` step, the platform likely detected and used `temporal/Dockerfile` with the `temporal/` folder as the build context. That context does not include the repo root where `package.json` and `bun.lock` live, and the worker also imports code from `lib/` at the repo root.
+- Fix: explicitly set the Dockerfile path to `temporal/worker.Dockerfile` and ensure the build context/root directory is the repository root (`./`). Avoid using auto-detected `temporal/Dockerfile`.
+- Local test: `docker build -f temporal/worker.Dockerfile . -t temporal-worker:dev` then run with your env vars: `docker run --rm -e TEMPORAL_ADDRESS=host:port -e TEMPORAL_NAMESPACE=default -e TEMPORAL_TLS=false temporal-worker:dev`.
+
 3) Vercel (Frontend)
 - Set env vars in Project Settings → Environment Variables:
   - AUTH_GOOGLE_ID (required for Google OAuth)
@@ -59,6 +64,7 @@ CLI Quick Reference
   - railway init -n spark-scout-temporal
   - railway add --image temporalio/temporalite:latest --service temporalite --variables RAILWAY_TCP_PROXY_PORTS=7233
   - railway add --service temporal-worker --variables "RAILWAY_RUN_COMMAND=bun run temporal:worker:chat"
+  - In the service settings, set Build type to Dockerfile, Dockerfile path to `temporal/worker.Dockerfile`, and Root Directory to the repo root (`./`).
   - railway service temporal-worker
   - railway variables --set "TEMPORAL_ADDRESS=<host:port>" --set "TEMPORAL_NAMESPACE=default" --set "TEMPORAL_TLS=false"
   - railway up --service temporal-worker --detach
