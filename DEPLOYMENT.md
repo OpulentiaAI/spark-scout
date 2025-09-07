@@ -36,7 +36,11 @@ Option B — Temporal Cloud (production)
 
 3) Vercel (Frontend)
 - Set env vars in Project Settings → Environment Variables:
-  - AUTH_SECRET
+  - AUTH_GOOGLE_ID (required for Google OAuth)
+  - AUTH_GOOGLE_SECRET (required for Google OAuth)
+  - AUTH_SECRET (required for NextAuth.js)
+  - AUTH_REDIRECT_PROXY_URL (optional but recommended for preview deployments)
+  - AUTH_TRUST_HOST (optional but recommended for Vercel deployments)
   - TEMPORAL_ADDRESS
   - TEMPORAL_NAMESPACE
   - TEMPORAL_TLS (true/false)
@@ -48,6 +52,7 @@ Option B — Temporal Cloud (production)
 - New chat starts a Temporal workflow (first user message)
 - Model selector change signals updateModel when a workflow exists
 - Enhanced selector shows Pending approvals and Approve/Deny
+- Google OAuth sign-in works without redirect_uri_mismatch errors
 
 CLI Quick Reference
 - Railway
@@ -58,7 +63,12 @@ CLI Quick Reference
   - railway variables --set "TEMPORAL_ADDRESS=<host:port>" --set "TEMPORAL_NAMESPACE=default" --set "TEMPORAL_TLS=false"
   - railway up --service temporal-worker --detach
 - Vercel
+  - vercel login
+  - vercel env add AUTH_GOOGLE_ID production
+  - vercel env add AUTH_GOOGLE_SECRET production
   - vercel env add AUTH_SECRET production
+  - vercel env add AUTH_REDIRECT_PROXY_URL production
+  - vercel env add AUTH_TRUST_HOST production
   - vercel env add TEMPORAL_ADDRESS production
   - vercel env add TEMPORAL_NAMESPACE production
   - vercel env add TEMPORAL_TLS production
@@ -67,3 +77,4 @@ CLI Quick Reference
 Security Notes
 - Do not commit secrets to the repository.
 - Rotate any credentials that were shared in plaintext or committed accidentally.
+- Your Google OAuth client credentials should never be exposed publicly.
