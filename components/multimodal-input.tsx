@@ -99,7 +99,11 @@ function PureMultimodalInput({
     !ANONYMOUS_LIMITS.AVAILABLE_MODELS.includes(selectedModelId as any);
 
   // Temporal chat wiring
-  const { startChat, addMessage: addTemporalMessage, currentWorkflowId } = useTemporalChat();
+  const {
+    startChat,
+    addMessage: addTemporalMessage,
+    currentWorkflowId,
+  } = useTemporalChat();
 
   // Helper function to auto-switch to PDF-compatible model
   const switchToPdfCompatibleModel = useCallback(() => {
@@ -280,8 +284,8 @@ function PureMultimodalInput({
 
     void onSendMessage?.(message);
 
-    // Kick off Temporal chat workflow on first message of a new conversation
-    (async () => {
+    // Kick off Temporal chat workflow on first message of a new conversation (lazy initialization)
+    setTimeout(async () => {
       try {
         if (!currentWorkflowId && chatStore.getState().messages.length === 0) {
           const [provider, model] = (selectedModelId as string).split('/', 2);
@@ -289,13 +293,17 @@ function PureMultimodalInput({
         }
         // Signal addMessage to Temporal workflow as best-effort (if workflow exists)
         if (currentWorkflowId) {
-          await addTemporalMessage?.({ role: 'user', content: input, timestamp: Date.now() } as any);
+          await addTemporalMessage?.({
+            role: 'user',
+            content: input,
+            timestamp: Date.now(),
+          } as any);
         }
       } catch (err) {
         // Non-blocking for UI messaging
         console.error('Temporal start/addMessage failed', err);
       }
-    })();
+    }, 1000); // Delay by 1 second to prioritize main chat response
 
     saveChatMessage({ message, chatId });
 
