@@ -4,7 +4,7 @@ WORKDIR /app
 # Install dependencies first for better caching
 COPY package.json package-lock.json* ./
 RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/* \
-    && npm ci --only=production
+    && npm ci --only=production --verbose
 
 # Copy source
 COPY . .
