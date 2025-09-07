@@ -22,7 +22,7 @@ For your Google OAuth integration to work correctly, you need to set these envir
 ### How to Set Environment Variables in Vercel
 
 1. Go to your Vercel Dashboard
-2. Select your Spark-Scout project
+2. Select your Spark Scout project
 3. Go to Settings > Environment Variables
 4. Add the following variables:
    
