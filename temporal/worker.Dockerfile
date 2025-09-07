@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt
 # Copy package files
 COPY package.json bun.lock ./
 
-# Install dependencies with bun
+# Install dependencies with bun (allow lockfile updates)
 RUN bun install --production --verbose
 
 # Copy source code
@@ -22,5 +22,5 @@ ENV NODE_ENV=production
 # ENV TEMPORAL_NAMESPACE=default
 # ENV TEMPORAL_TLS=false
 
-# Use bun to run the worker
-CMD ["bun", "run", "temporal:worker:chat"]
+# Use bun to run the standalone worker
+CMD ["bun", "run", "temporal/standalone-worker.ts"]
