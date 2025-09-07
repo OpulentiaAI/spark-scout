@@ -1,0 +1,17 @@
+[phases.setup]
+nixPkgs = ["nodejs_20", "bun"]
+
+[phases.install]
+cmds = [
+  "npm install -g corepack@0.24.1 && corepack enable",
+  "bun i --no-save"
+]
+
+[phases.build]
+cmds = [
+  "echo Skipping Next.js build for worker"
+]
+
+[phases.start]
+# Run the Temporal worker under Node to avoid N-API issues
+cmd = "npx tsx temporal/workers/chat-worker.ts"

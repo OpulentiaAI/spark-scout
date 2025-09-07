@@ -10,6 +10,34 @@ interface ExtendedSession extends Session {
   user: User;
 }
 
+// Build providers conditionally based on env vars to avoid invalid_client
+const configuredProviders = [] as any[];
+if (process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET) {
+  configuredProviders.push(
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+    }),
+  );
+} else {
+  console.warn(
+    'Google auth not configured: set AUTH_GOOGLE_ID and AUTH_GOOGLE_SECRET',
+  );
+}
+
+if (process.env.AUTH_GITHUB_ID && process.env.AUTH_GITHUB_SECRET) {
+  configuredProviders.push(
+    GitHub({
+      clientId: process.env.AUTH_GITHUB_ID,
+      clientSecret: process.env.AUTH_GITHUB_SECRET,
+    }),
+  );
+} else {
+  console.warn(
+    'GitHub auth not configured: set AUTH_GITHUB_ID and AUTH_GITHUB_SECRET',
+  );
+}
+
 export const {
   handlers: { GET, POST },
   auth,
@@ -19,16 +47,7 @@ export const {
   ...authConfig,
   // Require secret from environment (set AUTH_SECRET or NEXTAUTH_SECRET)
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
-  providers: [
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET,
-    }),
-    GitHub({
-      clientId: process.env.AUTH_GITHUB_ID,
-      clientSecret: process.env.AUTH_GITHUB_SECRET,
-    }),
-  ],
+  providers: configuredProviders,
   callbacks: {
     async signIn({ user, account, profile }) {
       if (!account || !profile || !user?.email) {

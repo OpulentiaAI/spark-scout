@@ -5,14 +5,14 @@ WORKDIR /app
 # Install system dependencies
 RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 
-# Copy package files
-COPY package.json bun.lock ./
+# Copy temporal worker package files
+COPY temporal/package.json ./
 
-# Install dependencies with bun (allow lockfile updates)
-RUN bun install --production --verbose
+# Install only temporal worker dependencies
+RUN bun install --production --no-verify --no-audit --no-fund
 
-# Copy source code
-COPY . .
+# Copy temporal worker source
+COPY temporal/ ./temporal/
 
 # Set environment
 ENV NODE_ENV=production

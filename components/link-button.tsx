@@ -5,6 +5,15 @@ import type { VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
 
+type LinkButtonProps = {
+  className?: string;
+  variant?: VariantProps<typeof buttonVariants>['variant'];
+  size?: VariantProps<typeof buttonVariants>['size'];
+  href: string | URL;
+  disabled?: boolean;
+  children?: React.ReactNode;
+} & Omit<React.ComponentProps<typeof Link>, 'href' | 'className' | 'children'>;
+
 function LinkButton({
   className,
   variant,
@@ -13,19 +22,11 @@ function LinkButton({
   disabled,
   children,
   ...props
-}: {
-  className?: string;
-  variant?: VariantProps<typeof buttonVariants>['variant'];
-  size?: VariantProps<typeof buttonVariants>['size'];
-  href: string;
-  disabled?: boolean;
-  children?: React.ReactNode;
-  props?: React.AnchorHTMLAttributes<HTMLAnchorElement>;
-}) {
+}: LinkButtonProps) {
+  const hrefStr = typeof href === 'string' ? href : href.toString();
   return (
     <Link
-      // @ts-expect-error - href is a valid URL
-      href={href}
+      href={hrefStr}
       className={cn(
         buttonVariants({ variant, size, className }),
         disabled && 'pointer-events-none opacity-50',

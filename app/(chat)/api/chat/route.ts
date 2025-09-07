@@ -1,12 +1,4 @@
-import {
-  convertToModelMessages,
-  createUIMessageStream,
-  JsonToSseTransformStream,
-  streamText,
-  stepCountIs,
-} from 'ai';
 import { replaceFilePartUrlByBinaryDataInMessages } from '@/lib/utils/download-assets';
-import { auth } from '@/app/(auth)/auth';
 import { systemPrompt } from '@/lib/ai/prompts';
 import {
   getChatById,
@@ -26,7 +18,8 @@ import {
   filterAffordableTools,
   getBaseModelCostByModelId,
 } from '@/lib/credits/credits-utils';
-import { getLanguageModel, getModelProviderOptions } from '@/lib/ai/providers';
+// Providers are imported dynamically inside the handler to avoid build-time env checks
+// import { getLanguageModel, getModelProviderOptions } from '@/lib/ai/providers';
 import type { CreditReservation } from '@/lib/credits/credit-reservation';
 import { getModelDefinition, type ModelDefinition } from '@/lib/ai/all-models';
 import {
@@ -70,7 +63,7 @@ if (process.env.REDIS_URL) {
 
 let globalStreamContext: ResumableStreamContext | null = null;
 
-export function getStreamContext() {
+function getStreamContext() {
   if (!globalStreamContext) {
     try {
       globalStreamContext = createResumableStreamContext({
@@ -97,17 +90,19 @@ export function getStreamContext() {
   return globalStreamContext;
 }
 
-export function getRedisSubscriber() {
+function getRedisSubscriber() {
   return redisSubscriber;
 }
 
-export function getRedisPublisher() {
+function getRedisPublisher() {
   return redisPublisher;
 }
 
 export async function POST(request: NextRequest) {
   const log = createModuleLogger('api:chat');
+  let stage = 'init';
   try {
+    stage = 'parse-request';
     const {
       id: chatId,
       message: userMessage,
@@ -118,12 +113,14 @@ export async function POST(request: NextRequest) {
       prevMessages: ChatMessage[];
     } = await request.json();
 
+    stage = 'validate-message';
     if (!userMessage) {
       log.warn('No user message found');
       return new Response('No user message found', { status: 400 });
     }
 
     // Extract selectedModel from user message metadata
+    stage = 'select-model';
     const selectedModelId = userMessage.metadata?.selectedModel as ModelId;
 
     if (!selectedModelId) {
@@ -133,7 +130,22 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const session = await auth();
+    stage = 'auth';
+    let session: any = null;
+    // Only attempt auth() if a NextAuth session cookie is present; otherwise stay anonymous
+    const rawCookie = request.headers.get('cookie') || '';
+    const hasSessionCookie = /(?:^|;\s*)(?:next-auth\.session-token|authjs\.session-token)=/.test(
+      rawCookie,
+    );
+    if (hasSessionCookie) {
+      try {
+        const authMod = await import('@/app/(auth)/auth');
+        session = await authMod.auth();
+      } catch (e) {
+        log.warn({ e }, 'auth() failed; proceeding as anonymous');
+        session = null;
+      }
+    }
 
     const userId = session?.user?.id || null;
     const isAnonymous = userId === null;
@@ -143,6 +155,7 @@ export async function POST(request: NextRequest) {
 
     if (userId) {
       // TODO: Consider if checking if user exists is really needed
+      stage = 'get-user';
       const user = await getUserById({ userId });
       if (!user) {
         log.warn('User not found');
@@ -293,6 +306,7 @@ export async function POST(request: NextRequest) {
     let reservation: CreditReservation | null = null;
 
     if (!isAnonymous) {
+      stage = 'reserve-credits';
       const { reservation: res, error: creditError } =
         await getCreditReservation(userId, baseModelCost);
 
@@ -365,7 +379,17 @@ export async function POST(request: NextRequest) {
       activeTools = explicitlyRequestedTools;
     }
 
+    // Load AI helpers dynamically (prevents build-time provider initialization)
+    const {
+      convertToModelMessages,
+      createUIMessageStream,
+      JsonToSseTransformStream,
+      streamText,
+      stepCountIs,
+    } = await import('ai');
+
     // Validate input token limit (50k tokens for user message)
+    stage = 'token-count';
     const totalTokens = calculateMessagesTokens(
       convertToModelMessages([userMessage]),
     );
@@ -379,6 +403,7 @@ export async function POST(request: NextRequest) {
       return error.toResponse();
     }
 
+    stage = 'thread';
     const messageThreadToParent = isAnonymous
       ? anonymousPreviousMessages
       : await getThreadUpToMessageId(
@@ -403,12 +428,14 @@ export async function POST(request: NextRequest) {
     const modelMessages = convertToModelMessages(messagesWithoutReasoning);
 
     // TODO: remove this when the gateway provider supports URLs
+    stage = 'context-prepare';
     const contextForLLM =
       await replaceFilePartUrlByBinaryDataInMessages(modelMessages);
     log.debug({ contextForLLM }, 'context prepared');
     log.debug({ activeTools }, 'active tools');
 
     // Create AbortController with 55s timeout for credit cleanup
+    stage = 'setup-abort';
     const abortController = new AbortController();
     const timeoutId = setTimeout(async () => {
       if (reservation) {
@@ -455,8 +482,62 @@ export async function POST(request: NextRequest) {
       }
 
       // Build the data stream that will emit tokens
+      stage = 'stream-start';
       const stream = createUIMessageStream<ChatMessage>({
-        execute: ({ writer: dataStream }) => {
+        execute: async ({ writer: dataStream }) => {
+          stage = 'streamText';
+          const { getLanguageModel, getModelProviderOptions } = await import(
+            '@/lib/ai/providers'
+          );
+          const { getTools } = await import('@/lib/ai/tools/tools');
+          // Anonymous path: avoid streaming errors and emit a single, friendly message
+          if (isAnonymous) {
+            try {
+              const { generateText } = await import('ai');
+              const textResult = await generateText({
+                model: getLanguageModel(selectedModelId),
+                system: systemPrompt(),
+                messages: contextForLLM,
+                providerOptions: getModelProviderOptions(selectedModelId),
+                experimental_telemetry: { isEnabled: true, functionId: 'chat-response' },
+              });
+
+              const msg: ChatMessage = {
+                id: messageId,
+                role: 'assistant',
+                parts: [{ type: 'text', text: textResult.text }],
+                metadata: {
+                  createdAt: new Date(),
+                  parentMessageId: userMessage.id,
+                  isPartial: false,
+                  selectedModel: selectedModelId,
+                },
+              };
+              dataStream.write({ type: 'data-appendMessage', data: JSON.stringify(msg) });
+            } catch (genErr) {
+              log.error({ genErr }, 'generateText failed for anonymous');
+              const fallbackMessage: ChatMessage = {
+                id: messageId,
+                role: 'assistant',
+                parts: [
+                  {
+                    type: 'text',
+                    text: 'Sorry, something went wrong. Please try again in a moment.',
+                  },
+                ],
+                metadata: {
+                  createdAt: new Date(),
+                  parentMessageId: userMessage.id,
+                  isPartial: false,
+                  selectedModel: selectedModelId,
+                },
+              };
+              dataStream.write({ type: 'data-appendMessage', data: JSON.stringify(fallbackMessage) });
+            }
+            return; // Do not attach streaming path for anonymous
+          }
+
+          let fallbackEmitted = false;
           const result = streamText({
             model: getLanguageModel(selectedModelId),
             system: systemPrompt(),
@@ -484,23 +565,52 @@ export async function POST(request: NextRequest) {
               functionId: 'chat-response',
             },
             tools: getTools({
-              dataStream,
-              session: {
-                user: {
-                  id: userId || undefined,
+                dataStream,
+                session: {
+                  user: {
+                    id: userId || undefined,
+                  },
+                  expires: 'noop',
                 },
-                expires: 'noop',
-              },
-              contextForLLM: contextForLLM,
-              messageId,
-              selectedModel: selectedModelId,
-              attachments: userMessage.parts.filter(
-                (part) => part.type === 'file',
-              ),
-              lastGeneratedImage,
+                contextForLLM: contextForLLM,
+                messageId,
+                selectedModel: selectedModelId,
+                attachments: userMessage.parts.filter(
+                  (part) => part.type === 'file',
+                ),
+                lastGeneratedImage,
             }),
             onError: (error) => {
               log.error({ error }, 'streamText error');
+              if (isAnonymous && !fallbackEmitted) {
+                try {
+                  const fallbackMessage = {
+                    id: messageId,
+                    role: 'assistant' as const,
+                    parts: [
+                      {
+                        type: 'text' as const,
+                        text:
+                          'Sorry, something went wrong. Please try again in a moment.',
+                      },
+                    ],
+                    metadata: {
+                      createdAt: new Date(),
+                      parentMessageId: userMessage.id,
+                      isPartial: false,
+                      selectedModel: selectedModelId,
+                    },
+                  } satisfies ChatMessage;
+                  // Emit a friendly fallback instead of an error event
+                  dataStream.write({
+                    type: 'data-appendMessage',
+                    data: JSON.stringify(fallbackMessage),
+                  });
+                  fallbackEmitted = true;
+                } catch (emitErr) {
+                  log.error({ emitErr }, 'Failed to emit fallback message');
+                }
+              }
             },
             abortSignal: abortController.signal, // Pass abort signal to streamText
             ...(modelDefinition.features?.fixedTemperature
@@ -512,7 +622,10 @@ export async function POST(request: NextRequest) {
             providerOptions: getModelProviderOptions(selectedModelId),
           });
 
-          result.consumeStream();
+          // If we already emitted a fallback, do not merge the underlying result stream
+          if (!fallbackEmitted) {
+            result.consumeStream();
+          }
 
           const initialMetadata = {
             createdAt: new Date(),
@@ -521,25 +634,24 @@ export async function POST(request: NextRequest) {
             selectedModel: selectedModelId,
           };
 
-          dataStream.merge(
-            result.toUIMessageStream({
-              sendReasoning: true,
-              messageMetadata: ({ part }) => {
-                // send custom information to the client on start:
-                if (part.type === 'start') {
-                  return initialMetadata;
-                }
-
-                // when the message is finished, send additional information:
-                if (part.type === 'finish') {
-                  return {
-                    ...initialMetadata,
-                    isPartial: false,
-                  };
-                }
-              },
-            }),
-          );
+          if (!fallbackEmitted) {
+            dataStream.merge(
+              result.toUIMessageStream({
+                sendReasoning: true,
+                messageMetadata: ({ part }) => {
+                  if (part.type === 'start') {
+                    return initialMetadata;
+                  }
+                  if (part.type === 'finish') {
+                    return {
+                      ...initialMetadata,
+                      isPartial: false,
+                    };
+                  }
+                },
+              }),
+            );
+          }
         },
         generateId: () => messageId,
         onFinish: async ({ messages, isContinuation, responseMessage }) => {
@@ -609,20 +721,7 @@ export async function POST(request: NextRequest) {
           }
         },
 
-        onError: (error) => {
-          // Clear timeout on error
-          clearTimeout(timeoutId);
-          log.error({ error }, 'onError');
-          // Release reserved credits on error (fire and forget)
-          if (reservation) {
-            reservation.cleanup();
-          }
-          if (anonymousSession) {
-            anonymousSession.remainingCredits += baseModelCost;
-            setAnonymousSession(anonymousSession);
-          }
-          return 'Oops, an error occured!';
-        },
+        // Note: omit onError to avoid emitting SDK error events to clients
       });
 
       after(async () => {
@@ -657,6 +756,7 @@ export async function POST(request: NextRequest) {
         }
       });
 
+      stage = 'stream-response';
       const streamContext = getStreamContext();
 
       if (streamContext) {
@@ -683,10 +783,27 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     log.error({ error }, 'RESPONSE > POST /api/chat error');
-    return new Response('An error occurred while processing your request!', {
-      status: 404,
-    });
+    const msg =
+      error && typeof error === 'object'
+        ? `${(error as Error).name}: ${(error as Error).message}`
+        : 'Unknown error';
+    const hasOpenAI = Boolean(process.env.OPENAI_API_KEY);
+    let providerPath: string | null = null;
+    try {
+      const prov = await import('@/lib/ai/providers');
+      providerPath = prov.lastLanguageProviderPath || null;
+    } catch {}
+    return new Response(
+      JSON.stringify({ error: msg, stage, env: { openaiKey: hasOpenAI }, providerPath }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      },
+    );
   }
 }
 
 // DELETE moved to tRPC chat.deleteChat mutation
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const runtime = 'nodejs';

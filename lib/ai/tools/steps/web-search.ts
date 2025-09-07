@@ -85,12 +85,14 @@ export async function webSearchStep({
         ...providerOptions,
       });
 
-      results = response.results.map((r) => ({
-        source: 'web',
-        title: r.title,
-        url: r.url,
-        content: r.content,
-      }));
+      results = response.results.map(
+        (r: { title?: string; url?: string; content?: string }) => ({
+          source: 'web',
+          title: r.title ?? '',
+          url: r.url ?? '',
+          content: r.content ?? '',
+        }),
+      );
     } else if (providerOptions.provider === 'firecrawl') {
       const client = getFirecrawlClient();
       if (!client) {
@@ -107,12 +109,14 @@ export async function webSearchStep({
         ...providerOptions,
       });
 
-      results = response.data.map((item) => ({
-        source: 'web',
-        title: item.title || '',
-        url: item.url || '',
-        content: item.markdown || '',
-      }));
+      results = response.data.map(
+        (item: { title?: string; url?: string; markdown?: string }) => ({
+          source: 'web',
+          title: item.title || '',
+          url: item.url || '',
+          content: item.markdown || '',
+        }),
+      );
     }
 
     log.debug(

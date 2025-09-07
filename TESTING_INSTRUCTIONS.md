@@ -142,3 +142,12 @@ Or
 
 
 ![Message Editing](demo/chrome_PLQS5DnWWL.png)
+
+## 9. Temporal Workflows (Optional)
+
+- Unit tests: `npm run test:unit` runs Temporal workflow tests with the in-memory test environment.
+- Local worker: `bun run temporal:worker:chat` (requires a Temporal server at `TEMPORAL_ADDRESS`, e.g., `localhost:7233`).
+- Local Docker:
+  - `docker build -f temporal/worker.Dockerfile . -t temporal-worker:dev`
+  - `docker run --rm -e TEMPORAL_ADDRESS=host.docker.internal:7233 -e TEMPORAL_NAMESPACE=default -e TEMPORAL_TLS=false temporal-worker:dev`
+- Cloud Run deploy: use `scripts/cloudrun/deploy-temporal-worker.sh` with `GCP_PROJECT_ID, REGION, TEMPORAL_ADDRESS, TEMPORAL_NAMESPACE, TEMPORAL_TLS` exported.

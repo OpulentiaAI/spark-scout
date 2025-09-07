@@ -2,9 +2,18 @@ import { tool } from 'ai';
 import { z } from 'zod';
 import FirecrawlApp from '@mendable/firecrawl-js';
 
-const app = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY,
-});
+let firecrawlClient: FirecrawlApp | null = null;
+function getFirecrawlClient() {
+  if (firecrawlClient) return firecrawlClient;
+  const key = process.env.FIRECRAWL_API_KEY;
+  if (!key) return null;
+  try {
+    firecrawlClient = new FirecrawlApp({ apiKey: key });
+    return firecrawlClient;
+  } catch {
+    return null;
+  }
+}
 
 export const retrieve = tool({
   description: `Fetch structured information from a single URL via Firecrawl.
@@ -19,7 +28,16 @@ Avoid:
   }),
   execute: async ({ url }: { url: string }) => {
     try {
-      const content = await app.scrapeUrl(url);
+      const client = getFirecrawlClient();
+      if (!client) {
+        return {
+          results: [],
+          error:
+            'Retrieve is not configured. Set FIRECRAWL_API_KEY to enable URL content extraction.',
+        } as any;
+      }
+
+      const content = await client.scrapeUrl(url);
       if (!content.success || !content.metadata) {
         return {
           results: [
@@ -43,7 +61,7 @@ Avoid:
 
       // If any content is missing, use extract to get it
       if (!title || !description || !extractedContent) {
-        const extractResult = await app.extract([url], {
+        const extractResult = await client.extract([url], {
           prompt:
             'Extract the page title, main content, and a brief description.',
           schema: schema,

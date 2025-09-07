@@ -51,3 +51,36 @@ Notes
 - Client-only code never imports Temporal SDK (Node-only). All Temporal usage is via API routes.
 - Existing model selector remains default. Enable new dropdown via NEXT_PUBLIC_USE_TEXTMORPH_SELECTOR=true.
 - Tool activities are placeholders; wire to existing tool flows incrementally.
+- [ ] Add Temporalite service to Railway
+- [x] Fix Docker context issue in docs
+- [ ] Deploy Temporalite on Railway
+- [ ] Deploy worker on Railway (Nixpacks)
+- [ ] Verify worker connects to Temporalite
+- [ ] Wire Vercel envs and deploy
+- [x] Fix Docker context issue in docs
+- [ ] Deploy Temporalite on Railway
+- [ ] Deploy worker on Railway (Nixpacks)
+- [ ] Verify worker connects to Temporalite
+- [ ] Wire Vercel envs and deploy
+- [x] Remove conflicting temporal/Dockerfile and harden worker.Dockerfile
+- [ ] Start Temporalite locally for test
+- [ ] Build worker Docker image locally
+- [x] Adjust Dockerfile to use 'bun install' (lockfile compatibility)
+- [x] Add build deps (python3/make/g++) to worker image for node-gyp
+- [ ] Run unit tests (vitest)
+- [x] Add Cloud Run deploy script for worker
+- [x] Run unit tests (vitest)
+- [x] Fix Next.js build error in link-markdown.tsx
+- [x] Fix Vercel build by lazy-loading AI providers and tools, and decoupling stream route
+- [x] Fix anonymous default model to allowed one
+- [x] Fix anonymous default model to allowed one
+- [ ] Redeploy Railway worker (verify live logs)
+- [ ] Add OPENAI_API_KEY to Vercel (optional for image edits)
+- [ ] Smoke test prod chat + /api/chat stream
+- [x] Fix anonymous default model to allowed one
+- [ ] Redeploy Railway worker (verify live logs)
+- [ ] Add OPENAI_API_KEY to Vercel (optional for image edits)
+- [ ] Smoke test prod chat + /api/chat stream
+- [x] Add Railway config-as-code to skip app build for worker
+- [ ] Redeploy worker after UI config-as-code path change
+- [ ] Redeploy worker after UI config-as-code path change

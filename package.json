@@ -5,8 +5,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "next dev --turbo",
-    "build": "tsx lib/db/migrate && next build",
-    "start": "next start",
+    "build": "if [ \"$BUILD_TARGET\" = \"worker\" ]; then echo 'Skipping Next.js build for worker'; else tsx lib/db/migrate && next build; fi",
+    "start": "if [ \"$WORKER\" = \"1\" ]; then bun run temporal:worker:chat; else next start; fi",
     "lint": "next lint && biome lint --write --unsafe",
     "lint:fix": "next lint --fix && biome lint --write --unsafe",
     "format": "biome format --write",
@@ -24,7 +24,7 @@
     "test": "export PLAYWRIGHT=True && bunx playwright test --workers=4",
     "test:unit": "vitest run",
     "test:types": "next typegen . && tsc --noEmit",
-    "temporal:worker:chat": "tsx temporal/workers/chat-worker.ts"
+    "temporal:worker:chat": "bun temporal/workers/chat-worker.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.3",

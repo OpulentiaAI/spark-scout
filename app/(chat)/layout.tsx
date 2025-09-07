@@ -21,17 +21,16 @@ export default async function ChatLayout({
   const cookieModel = cookieStore.get('chat-model')?.value as ModelId;
   const isAnonymous = !session?.user;
 
-  // Check if the model from cookie is available for anonymous users
-  let defaultModel = cookieModel ?? DEFAULT_CHAT_MODEL;
-
-  if (isAnonymous && cookieModel) {
-    const isModelAvailable = ANONYMOUS_LIMITS.AVAILABLE_MODELS.includes(
-      cookieModel as any,
-    );
-    if (!isModelAvailable) {
-      // Switch to default model if current model is not available for anonymous users
-      defaultModel = DEFAULT_CHAT_MODEL;
-    }
+  // Choose a default model respecting anonymous limits when applicable
+  let defaultModel: ModelId;
+  if (isAnonymous) {
+    const candidate = cookieModel ?? undefined;
+    const allowed = ANONYMOUS_LIMITS.AVAILABLE_MODELS as readonly ModelId[];
+    defaultModel = candidate && (allowed as readonly string[]).includes(candidate)
+      ? candidate
+      : (allowed[0] as ModelId);
+  } else {
+    defaultModel = (cookieModel ?? DEFAULT_CHAT_MODEL) as ModelId;
   }
 
   return (

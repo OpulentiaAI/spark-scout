@@ -4,7 +4,7 @@ import type { Chat } from '@/lib/db/schema';
 import { ChatSDKError } from '@/lib/ai/errors';
 import type { ChatMessage } from '@/lib/ai/types';
 import { createUIMessageStream, JsonToSseTransformStream } from 'ai';
-import { getRedisPublisher, getStreamContext } from '../../route';
+import { getRedisPublisher, getStreamContext } from '../../stream-shared';
 import { differenceInSeconds } from 'date-fns';
 
 export async function GET(
@@ -126,3 +126,6 @@ export async function GET(
 
   return new Response(stream, { status: 200 });
 }
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const runtime = 'nodejs';

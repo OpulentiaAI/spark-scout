@@ -269,8 +269,7 @@ function PureMessagePart({
         <div key={toolCallId}>
           <DocumentToolCall
             type="request-suggestions"
-            // @ts-expect-error - TODO: fix this
-            args={input}
+            args={input as any}
             isReadonly={isReadonly}
           />
         </div>
@@ -314,8 +313,7 @@ function PureMessagePart({
       const { output } = part;
       return (
         <div key={toolCallId}>
-          {/* @ts-expect-error - TODO: fix this */}
-          <Retrieve result={output} />
+          <Retrieve result={output as any} />
         </div>
       );
     }
@@ -330,8 +328,7 @@ function PureMessagePart({
       const { output } = part;
       return (
         <div key={toolCallId}>
-          {/* @ts-expect-error - TODO: fix this */}
-          <ReadDocument result={output} />
+          <ReadDocument result={output as any} />
         </div>
       );
     }
@@ -343,8 +340,7 @@ function PureMessagePart({
       const { input } = part;
       return (
         <div key={toolCallId}>
-          {/* @ts-expect-error - TODO: fix this */}
-          <StockChartMessage result={null} args={input} />
+          <StockChartMessage result={null as any} args={input as any} />
         </div>
       );
     }
@@ -352,8 +348,7 @@ function PureMessagePart({
       const { output, input } = part;
       return (
         <div key={toolCallId}>
-          {/* @ts-expect-error - TODO: fix this */}
-          <StockChartMessage result={output} args={input} />
+          <StockChartMessage result={output as any} args={input as any} />
         </div>
       );
     }
@@ -373,8 +368,7 @@ function PureMessagePart({
       const { output, input } = part;
       return (
         <div key={toolCallId}>
-          {/* @ts-expect-error - TODO: fix this */}
-          <CodeInterpreterMessage result={output} args={input} />
+          <CodeInterpreterMessage result={output as any} args={input as any} />
         </div>
       );
     }

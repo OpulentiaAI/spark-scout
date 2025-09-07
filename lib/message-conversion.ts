@@ -35,9 +35,10 @@ export function chatMessageToDbMessage(
   message: ChatMessage,
   chatId: string,
 ): DBMessage {
-  const parentMessageId = message.metadata.parentMessageId || null;
-  const isPartial = message.metadata.isPartial || false;
-  const selectedModel = message.metadata.selectedModel;
+  // Be defensive: assistant messages produced by the runtime may lack metadata
+  const parentMessageId = message.metadata?.parentMessageId ?? null;
+  const isPartial = message.metadata?.isPartial ?? false;
+  const selectedModel = (message.metadata?.selectedModel as ModelId) || ('' as ModelId);
 
   return {
     id: message.id,
