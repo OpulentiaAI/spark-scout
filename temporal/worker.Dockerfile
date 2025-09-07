@@ -1,14 +1,20 @@
-FROM node:20-slim as base
+# Use Node.js base image that supports bun
+FROM oven/bun:1-slim as base
 WORKDIR /app
 
-# Install dependencies first for better caching
-COPY package.json package-lock.json* ./
-RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/* \
-    && npm ci --only=production --verbose
+# Install system dependencies
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 
-# Copy source
+# Copy package files
+COPY package.json bun.lock ./
+
+# Install dependencies with bun
+RUN bun install --production --verbose
+
+# Copy source code
 COPY . .
 
+# Set environment
 ENV NODE_ENV=production
 
 # Configure Temporal address and namespace via env at deploy time
@@ -16,4 +22,5 @@ ENV NODE_ENV=production
 # ENV TEMPORAL_NAMESPACE=default
 # ENV TEMPORAL_TLS=false
 
-CMD ["npx", "tsx", "temporal/workers/chat-worker.ts"]
+# Use bun to run the worker
+CMD ["bun", "run", "temporal:worker:chat"]
