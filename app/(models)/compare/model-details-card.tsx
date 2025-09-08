@@ -6,7 +6,7 @@ import {
   CompareModelButton,
   GoToModelButton,
 } from '@/components/model-action-buttons';
-import { Check, X, Minus, ChevronDown } from 'lucide-react';
+import { Check, X, Minus, ChevronDown, SquareDashed } from 'lucide-react';
 import type { ModelDefinition } from '@/lib/ai/all-models';
 import type { ProviderId } from '@/lib/models/models.generated';
 import { getProviderIcon } from '@/components/get-provider-icon';
@@ -125,16 +125,18 @@ export function ModelDetailsCard({
 
   if (!model) {
     return (
-      <Card className="h-full border-dashed border-2 hover:border-primary/50 transition-colors">
-        <CardHeader>
-          <div className="text-lg font-semibold tracking-tight">
+      <Card className="h-full border-2 border-muted-foreground/20 bg-muted/10">
+        <CardContent className="flex h-64 flex-col items-center justify-center text-muted-foreground">
+          <SquareDashed
+            className="size-8 text-muted-foreground/50"
+            aria-hidden="true"
+          />
+          <div className="mt-2 text-sm font-medium text-foreground/70">
             No model selected
           </div>
-        </CardHeader>
-        <CardContent className="flex items-center justify-center h-64 text-muted-foreground">
-          <div className="text-center">
-            <p className="text-sm">Use the selector above to choose a model.</p>
-          </div>
+          <p className="mt-1 text-xs">
+            Use the selector above to choose a model.
+          </p>
         </CardContent>
       </Card>
     );

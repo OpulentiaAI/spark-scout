@@ -5,6 +5,8 @@ import type { UIArtifact } from './artifact';
 import type { QueryClient } from '@tanstack/react-query';
 import type { ChatMessage, CustomUIDataTypes } from '@/lib/ai/types';
 import type { DataUIPart } from 'ai';
+import type { useChatStoreApi } from '@/lib/stores/chat-store-context';
+import type { useTRPC } from '@/trpc/react';
 
 export type ArtifactActionContext<M = any> = {
   content: string;
@@ -27,6 +29,7 @@ type ArtifactAction<M = any> = {
 
 export type ArtifactToolbarContext = {
   sendMessage: UseChatHelpers<ChatMessage>['sendMessage'];
+  storeApi: ReturnType<typeof useChatStoreApi>;
 };
 
 export type ArtifactToolbarItem = {
@@ -52,21 +55,25 @@ interface ArtifactContent<M = any> {
   isReadonly?: boolean;
 }
 
-interface InitializeParameters<M = any> {
-  documentId: string;
-  setMetadata: Dispatch<SetStateAction<M>>;
-  trpc: ReturnType<typeof import('@/trpc/react').useTRPC>;
-  queryClient: QueryClient;
-  isAuthenticated: boolean;
-}
-
 type ArtifactConfig<T extends string, M = any> = {
   kind: T;
   description: string;
   content: ComponentType<ArtifactContent<M>>;
   actions: Array<ArtifactAction<M>>;
   toolbar: ArtifactToolbarItem[];
-  initialize?: (parameters: InitializeParameters<M>) => void;
+  initialize?: ({
+    documentId,
+    setMetadata,
+    trpc,
+    queryClient,
+    isAuthenticated,
+  }: {
+    documentId: string;
+    setMetadata: Dispatch<SetStateAction<M>>;
+    trpc: ReturnType<typeof useTRPC>;
+    queryClient: QueryClient;
+    isAuthenticated: boolean;
+  }) => void;
   onStreamPart: (args: {
     setMetadata: Dispatch<SetStateAction<M>>;
     setArtifact: Dispatch<SetStateAction<UIArtifact>>;
@@ -80,7 +87,19 @@ export class Artifact<T extends string, M = any> {
   readonly content: ComponentType<ArtifactContent<M>>;
   readonly actions: Array<ArtifactAction<M>>;
   readonly toolbar: ArtifactToolbarItem[];
-  readonly initialize?: (parameters: InitializeParameters) => void;
+  readonly initialize?: ({
+    documentId,
+    setMetadata,
+    trpc,
+    queryClient,
+    isAuthenticated,
+  }: {
+    documentId: string;
+    setMetadata: Dispatch<SetStateAction<M>>;
+    trpc: ReturnType<typeof import('@/trpc/react').useTRPC>;
+    queryClient: QueryClient;
+    isAuthenticated: boolean;
+  }) => void;
   readonly onStreamPart: (args: {
     setMetadata: Dispatch<SetStateAction<M>>;
     setArtifact: Dispatch<SetStateAction<UIArtifact>>;

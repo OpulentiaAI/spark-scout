@@ -14,11 +14,11 @@ import { GeneratedImage } from './generated-image';
 import { ResearchUpdates } from './message-annotations';
 import type { ChatMessage } from '@/lib/ai/types';
 import {
-  chatStore,
+  useChatStoreApi,
   useMessagePartTypesById,
   useMessagePartByPartIdx,
   useMessagePartsByPartRange,
-} from '@/lib/stores/chat-store';
+} from '@/lib/stores/chat-store-context';
 
 type MessagePartsProps = {
   messageId: string;
@@ -134,6 +134,7 @@ function PureMessagePart({
   const part = useMessagePartByPartIdx(messageId, partIdx);
   const { type } = part;
   const researchUpdates = useResearchUpdates(messageId, partIdx, type);
+  const chatStore = useChatStoreApi();
 
   if (type === 'tool-getWeather') {
     const { toolCallId, state } = part;
@@ -481,6 +482,7 @@ export function PureMessageReasoningParts({
     endIdx,
     'reasoning',
   );
+
   return (
     <MessageReasoning
       isLoading={isLoading}

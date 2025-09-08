@@ -431,7 +431,6 @@ export async function POST(request: NextRequest) {
     stage = 'context-prepare';
     const contextForLLM =
       await replaceFilePartUrlByBinaryDataInMessages(modelMessages);
-    log.debug({ contextForLLM }, 'context prepared');
     log.debug({ activeTools }, 'active tools');
 
     // Create AbortController with 55s timeout for credit cleanup

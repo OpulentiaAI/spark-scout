@@ -13,7 +13,6 @@ import {
 } from '@/lib/ai/all-models';
 import { parse, unparse } from 'papaparse';
 import { toast } from 'sonner';
-import { chatStore } from '@/lib/stores/chat-store';
 
 type Metadata = any;
 
@@ -100,7 +99,7 @@ export const sheetArtifact = new Artifact<'sheet', Metadata>({
     {
       description: 'Format and clean data',
       icon: <SparklesIcon />,
-      onClick: ({ sendMessage }) => {
+      onClick: ({ sendMessage, storeApi }) => {
         sendMessage({
           role: 'user',
           parts: [
@@ -109,7 +108,7 @@ export const sheetArtifact = new Artifact<'sheet', Metadata>({
           metadata: {
             selectedModel: DEFAULT_FORMAT_AND_CLEAN_SHEET_MODEL,
             createdAt: new Date(),
-            parentMessageId: chatStore.getState().getLastMessageId(),
+            parentMessageId: storeApi.getState().getLastMessageId(),
           },
         });
       },
@@ -117,7 +116,7 @@ export const sheetArtifact = new Artifact<'sheet', Metadata>({
     {
       description: 'Analyze and visualize data',
       icon: <LineChartIcon />,
-      onClick: ({ sendMessage }) => {
+      onClick: ({ sendMessage, storeApi }) => {
         sendMessage({
           role: 'user',
           parts: [
@@ -129,7 +128,7 @@ export const sheetArtifact = new Artifact<'sheet', Metadata>({
           metadata: {
             selectedModel: DEFAULT_ANALYZE_AND_VISUALIZE_SHEET_MODEL,
             createdAt: new Date(),
-            parentMessageId: chatStore.getState().getLastMessageId(),
+            parentMessageId: storeApi.getState().getLastMessageId(),
           },
         });
       },

@@ -1,6 +1,11 @@
-import { create } from 'zustand';
+'use client';
+
+import { useRef, createContext, useContext } from 'react';
+import { createStore } from 'zustand/vanilla';
+import { useStoreWithEqualityFn } from 'zustand/traditional';
 import { subscribeWithSelector, devtools } from 'zustand/middleware';
-import { useShallow } from 'zustand/react/shallow';
+import { shallow } from 'zustand/shallow';
+import type { UseChatHelpers } from '@ai-sdk/react';
 import {
   AbstractChat,
   type ChatInit,
@@ -8,7 +13,6 @@ import {
   type ChatStatus,
   type UIMessage,
 } from 'ai';
-import type { UseChatHelpers } from '@ai-sdk/react';
 import type { ChatMessage } from '@/lib/ai/types';
 import { throttle } from '@/components/throttle';
 import {
@@ -16,6 +20,7 @@ import {
   getMarkdownFromCache,
   precomputeMarkdownForAllMessages,
 } from '@/lib/stores/markdown-cache';
+import equal from 'fast-deep-equal';
 
 // --- Freeze detector (RAF jitter) and action correlation ---
 let __freezeDetectorStarted = false;
@@ -63,12 +68,9 @@ function startFreezeDetector({
   });
 }
 
-// Start detector only in the browser (safe during SSR)
 if (typeof window !== 'undefined') {
   startFreezeDetector({ thresholdMs: 80 });
 }
-
-// --- Markdown tokenization cache computed on throttled updates ---
 
 // Helper types to safely derive the message part and part.type types from UI_MESSAGE
 type UIMessageParts<UI_MSG> = UI_MSG extends { parts: infer P } ? P : never;
@@ -98,7 +100,7 @@ function extractPartTypes<UI_MESSAGE extends UIMessage>(
   return { partsRef, types };
 }
 
-interface ChatStoreState<UI_MESSAGE extends UIMessage> {
+export interface ChatStoreState<UI_MESSAGE extends UIMessage> {
   id: string | undefined;
   messages: UI_MESSAGE[];
   status: ChatStatus;
@@ -158,19 +160,16 @@ interface ChatStoreState<UI_MESSAGE extends UIMessage> {
   ) => void;
 }
 
-// Throttling configuration
 const MESSAGES_THROTTLE_MS = 100;
 
-// Create the Zustand store
 export function createChatStore<UI_MESSAGE extends UIMessage>(
   initialMessages: UI_MESSAGE[] = [],
 ) {
   let throttledMessagesUpdater: (() => void) | null = null;
 
-  return create<ChatStoreState<UI_MESSAGE>>()(
+  return createStore<ChatStoreState<UI_MESSAGE>>()(
     devtools(
       subscribeWithSelector((set, get) => {
-        // Initialize throttled messages updater
         if (!throttledMessagesUpdater) {
           throttledMessagesUpdater = throttle(() => {
             const state = get();
@@ -179,9 +178,7 @@ export function createChatStore<UI_MESSAGE extends UIMessage>(
               get()._markdownCache,
             );
             set({ _markdownCache: cache });
-            set({
-              _throttledMessages: [...state.messages],
-            });
+            set({ _throttledMessages: [...state.messages] });
           }, MESSAGES_THROTTLE_MS);
         }
 
@@ -193,8 +190,6 @@ export function createChatStore<UI_MESSAGE extends UIMessage>(
           status: 'ready',
           error: undefined,
           currentChatHelpers: null,
-
-          // Initialize cached values
           _throttledMessages: [...initialMessages],
           _markdownCache: initialPrecompute.cache,
 
@@ -208,10 +203,7 @@ export function createChatStore<UI_MESSAGE extends UIMessage>(
               messages,
               get()._markdownCache,
             );
-            set({
-              messages: [...messages],
-              _markdownCache: cache,
-            });
+            set({ messages: [...messages], _markdownCache: cache });
             throttledMessagesUpdater?.();
           },
           setStatus: (status) => {
@@ -224,47 +216,37 @@ export function createChatStore<UI_MESSAGE extends UIMessage>(
           },
           setNewChat: (id, messages) => {
             markLastAction('chat:setNewChat');
-            {
-              const { cache } = precomputeMarkdownForAllMessages(messages);
-              set({
-                messages: [...messages],
-                status: 'ready',
-                error: undefined,
-                id,
-                _markdownCache: cache,
-              });
-            }
+            const { cache } = precomputeMarkdownForAllMessages(messages);
+            set({
+              messages: [...messages],
+              status: 'ready',
+              error: undefined,
+              id,
+              _markdownCache: cache,
+            });
             throttledMessagesUpdater?.();
           },
-
           pushMessage: (message) => {
             markLastAction('chat:pushMessage');
-            set((state) => ({
-              messages: [...state.messages, message],
-            }));
+            set((state) => ({ messages: [...state.messages, message] }));
             throttledMessagesUpdater?.();
           },
-
           popMessage: () => {
             markLastAction('chat:popMessage');
-            set((state) => ({
-              messages: state.messages.slice(0, -1),
-            }));
+            set((state) => ({ messages: state.messages.slice(0, -1) }));
             throttledMessagesUpdater?.();
           },
-
           replaceMessage: (index, message) => {
             markLastAction('chat:replaceMessage');
             set((state) => ({
               messages: [
                 ...state.messages.slice(0, index),
-                structuredClone(message), // Deep clone for React Compiler compatibility
+                structuredClone(message),
                 ...state.messages.slice(index + 1),
               ],
             }));
             throttledMessagesUpdater?.();
           },
-
           setCurrentChatHelpers: (helpers) => {
             markLastAction('chat:setCurrentChatHelpers');
             set({ currentChatHelpers: helpers });
@@ -276,24 +258,20 @@ export function createChatStore<UI_MESSAGE extends UIMessage>(
               ? state.messages[state.messages.length - 1].id
               : null;
           },
-
           getMessageIds: () => {
             const state = get();
             return (state._throttledMessages || state.messages).map(
               (m) => m.id,
             );
           },
-
           getThrottledMessages: () => {
             const state = get();
             return state._throttledMessages || state.messages;
           },
-
           getInternalMessages: () => {
             const state = get();
             return state.messages;
           },
-
           getMessagePartTypesById: (messageId) => {
             const state = get();
             const message = (state._throttledMessages || state.messages).find(
@@ -332,27 +310,17 @@ export function createChatStore<UI_MESSAGE extends UIMessage>(
             ) as UIMessageParts<UI_MESSAGE>;
             return result as UIMessageParts<UI_MESSAGE>;
           },
-
-          getMarkdownBlocksForPart: (
-            messageId: string,
-            partIdx: number,
-          ): string[] => {
+          getMarkdownBlocksForPart: (messageId, partIdx) => {
             const state = get();
             const list = state._throttledMessages;
-
             if (!list) {
               throw new Error('No messages available');
             }
-
             const message = list.find((msg) => msg.id === messageId);
             if (!message)
               throw new Error(`Message not found for id: ${messageId}`);
-
             const selected = message.parts[partIdx] as unknown as
-              | {
-                  type: string;
-                  text?: string;
-                }
+              | { type: string; text?: string }
               | undefined;
             if (!selected)
               throw new Error(
@@ -364,7 +332,6 @@ export function createChatStore<UI_MESSAGE extends UIMessage>(
                   selected.type,
                 )}`,
               );
-
             const text = selected.text || '';
             const cached = getMarkdownFromCache({
               cache: get()._markdownCache,
@@ -375,17 +342,12 @@ export function createChatStore<UI_MESSAGE extends UIMessage>(
             if (cached) return cached.blocks;
             return [];
           },
-
-          getMarkdownBlockCountForPart: (
-            messageId: string,
-            partIdx: number,
-          ): number => {
+          getMarkdownBlockCountForPart: (messageId, partIdx) => {
             const state = get();
             const list = state._throttledMessages || state.messages;
             const message = list.find((msg) => msg.id === messageId);
             if (!message)
               throw new Error(`Message not found for id: ${messageId}`);
-
             const selected = message.parts[partIdx] as unknown as
               | { type: string; text?: string }
               | undefined;
@@ -399,7 +361,6 @@ export function createChatStore<UI_MESSAGE extends UIMessage>(
                   selected.type,
                 )}`,
               );
-
             const text = selected.text || '';
             const cached = getMarkdownFromCache({
               cache: get()._markdownCache,
@@ -407,10 +368,8 @@ export function createChatStore<UI_MESSAGE extends UIMessage>(
               partIdx,
               text,
             });
-
             const PREALLOCATED_BLOCKS = 100;
             if (cached)
-              // Reserve by chunks of PREALLOCATED_BLOCKS size
               return Math.max(
                 PREALLOCATED_BLOCKS,
                 Math.ceil(cached.blocks.length / PREALLOCATED_BLOCKS) *
@@ -418,23 +377,15 @@ export function createChatStore<UI_MESSAGE extends UIMessage>(
               );
             return PREALLOCATED_BLOCKS;
           },
-
-          getMarkdownBlockByIndex: (
-            messageId: string,
-            partIdx: number,
-            blockIdx: number,
-          ): string | null => {
+          getMarkdownBlockByIndex: (messageId, partIdx, blockIdx) => {
             const state = get();
             const list = state._throttledMessages;
-
             if (!list) {
               throw new Error('No messages available');
             }
-
             const message = list.find((msg) => msg.id === messageId);
             if (!message)
               throw new Error(`Message not found for id: ${messageId}`);
-
             const selected = message.parts[partIdx] as unknown as
               | { type: string; text?: string }
               | undefined;
@@ -448,7 +399,6 @@ export function createChatStore<UI_MESSAGE extends UIMessage>(
                   selected.type,
                 )}`,
               );
-
             const text = selected.text || '';
             const cached = getMarkdownFromCache({
               cache: get()._markdownCache,
@@ -460,8 +410,7 @@ export function createChatStore<UI_MESSAGE extends UIMessage>(
             if (blockIdx < 0 || blockIdx >= blocks.length) return null;
             return blocks[blockIdx] ?? null;
           },
-
-          getMessagePartByIdxCached: (messageId: string, partIdx: number) => {
+          getMessagePartByIdxCached: (messageId, partIdx) => {
             const state = get();
             const message = (state._throttledMessages || state.messages).find(
               (msg) => msg.id === messageId,
@@ -483,7 +432,7 @@ export function createChatStore<UI_MESSAGE extends UIMessage>(
 }
 
 // Chat state implementation that bridges Zustand to ChatState interface
-class ZustandChatState<UI_MESSAGE extends UIMessage>
+export class ZustandChatState<UI_MESSAGE extends UIMessage>
   implements ChatState<UI_MESSAGE>
 {
   private store: ReturnType<typeof createChatStore<UI_MESSAGE>>;
@@ -493,19 +442,14 @@ class ZustandChatState<UI_MESSAGE extends UIMessage>
 
   constructor(store: ReturnType<typeof createChatStore<UI_MESSAGE>>) {
     this.store = store;
-
-    // Subscribe to throttled messages changes and notify React callbacks
     this.store.subscribe(
       (state) => state._throttledMessages,
       () => this.messagesCallbacks.forEach((callback) => callback()),
-      { equalityFn: (a, b) => a === b },
     );
-
     this.store.subscribe(
       (state) => state.status,
       () => this.statusCallbacks.forEach((callback) => callback()),
     );
-
     this.store.subscribe(
       (state) => state.error,
       () => this.errorCallbacks.forEach((callback) => callback()),
@@ -515,42 +459,32 @@ class ZustandChatState<UI_MESSAGE extends UIMessage>
   get messages(): UI_MESSAGE[] {
     return this.store.getState().messages;
   }
-
   set messages(newMessages: UI_MESSAGE[]) {
     this.store.getState().setMessages(newMessages);
   }
-
   get status(): ChatStatus {
     return this.store.getState().status;
   }
-
   set status(newStatus: ChatStatus) {
     this.store.getState().setStatus(newStatus);
   }
-
   get error(): Error | undefined {
     return this.store.getState().error;
   }
-
   set error(newError: Error | undefined) {
     this.store.getState().setError(newError);
   }
-
   pushMessage = (message: UI_MESSAGE) => {
     this.store.getState().pushMessage(message);
   };
-
   popMessage = () => {
     this.store.getState().popMessage();
   };
-
   replaceMessage = (index: number, message: UI_MESSAGE) => {
     this.store.getState().replaceMessage(index, message);
   };
+  snapshot = <T,>(value: T): T => structuredClone(value);
 
-  snapshot = <T>(value: T): T => structuredClone(value);
-
-  // React subscription methods (using private names like the original)
   '~registerMessagesCallback' = (
     onChange: () => void,
     throttleWaitMs?: number,
@@ -563,224 +497,22 @@ class ZustandChatState<UI_MESSAGE extends UIMessage>
       this.messagesCallbacks.delete(callback);
     };
   };
-
   '~registerStatusCallback' = (onChange: () => void): (() => void) => {
     this.statusCallbacks.add(onChange);
     return () => {
       this.statusCallbacks.delete(onChange);
     };
   };
-
   '~registerErrorCallback' = (onChange: () => void): (() => void) => {
     this.errorCallbacks.add(onChange);
     return () => {
       this.errorCallbacks.delete(onChange);
     };
   };
-
-  // Expose store as public property
   get storeInstance() {
     return this.store;
   }
 }
-
-export const chatStore = createChatStore<ChatMessage>();
-
-// Create singleton state instance
-export const chatState = new ZustandChatState(chatStore);
-
-// Selector hooks for cleaner API - these use throttled messages
-export const useChatMessages = () =>
-  chatStore(useShallow((state) => state.getThrottledMessages()));
-export const useChatStatus = () => chatStore((state) => state.status);
-export const useChatError = () => chatStore((state) => state.error);
-export const useChatId = () => chatStore((state) => state.id);
-
-export const useMessageIds = () =>
-  chatStore(useShallow((state) => state.getMessageIds()));
-
-export const useMessageById = (messageId: string): ChatMessage =>
-  chatStore((state) => {
-    const message = state
-      .getThrottledMessages()
-      .find((msg) => msg.id === messageId);
-    if (!message) throw new Error(`Message not found for id: ${messageId}`);
-    return message;
-  });
-
-// Selector for only the message role; re-renders only when role value changes
-export const useMessageRoleById = (messageId: string): ChatMessage['role'] =>
-  chatStore((state) => {
-    const message = state
-      .getThrottledMessages()
-      .find((msg) => msg.id === messageId);
-    if (!message) throw new Error(`Message not found for id: ${messageId}`);
-    return message.role;
-  });
-
-export const useMessagePartsById = (messageId: string): ChatMessage['parts'] =>
-  chatStore(
-    useShallow((state) => {
-      const message = state
-        .getThrottledMessages()
-        .find((msg) => msg.id === messageId);
-      if (!message) throw new Error(`Message not found for id: ${messageId}`);
-      return message.parts;
-    }),
-  );
-
-export const useMessageResearchUpdatePartsById = (
-  messageId: string,
-): Extract<ChatMessage['parts'][number], { type: 'data-researchUpdate' }>[] =>
-  chatStore(
-    useShallow((state) => {
-      const message = state
-        .getThrottledMessages()
-        .find((msg) => msg.id === messageId);
-      if (!message) throw new Error(`Message not found for id: ${messageId}`);
-      return message.parts.filter(
-        (part) => part.type === 'data-researchUpdate',
-      );
-    }),
-  );
-
-export const useMessageMetadataById = (
-  messageId: string,
-): ChatMessage['metadata'] =>
-  chatStore(
-    useShallow((state) => {
-      const message = state
-        .getThrottledMessages()
-        .find((msg) => msg.id === messageId);
-      if (!message) throw new Error(`Message not found for id: ${messageId}`);
-      return message.metadata;
-    }),
-  );
-
-// Selector for only the part types of a message
-export const useMessagePartTypesById = (
-  messageId: string,
-): Array<ChatMessage['parts'][number]['type']> =>
-  chatStore(useShallow((state) => state.getMessagePartTypesById(messageId)));
-
-// Selector for a specific part by its index within the message parts
-export function useMessagePartByPartIdx(
-  messageId: string,
-  partIdx: number,
-): ChatMessage['parts'][number];
-export function useMessagePartByPartIdx<
-  T extends ChatMessage['parts'][number]['type'],
->(
-  messageId: string,
-  partIdx: number,
-  type: T,
-): Extract<ChatMessage['parts'][number], { type: T }>;
-export function useMessagePartByPartIdx<
-  T extends ChatMessage['parts'][number]['type'],
->(messageId: string, partIdx: number, type?: T) {
-  const part = chatStore((state) =>
-    state.getMessagePartByIdxCached(messageId, partIdx),
-  );
-
-  if (type !== undefined) {
-    if (part.type !== type) {
-      throw new Error(
-        `Part type mismatch for id: ${messageId} at partIdx: ${partIdx}. Expected ${String(
-          type,
-        )}, got ${String(part.type)}`,
-      );
-    }
-  }
-
-  return part as unknown as T extends ChatMessage['parts'][number]['type']
-    ? Extract<ChatMessage['parts'][number], { type: T }>
-    : ChatMessage['parts'][number];
-}
-
-// Selector for a contiguous range of parts (inclusive of startIdx and endIdx)
-export function useMessagePartsByPartRange(
-  messageId: string,
-  startIdx: number,
-  endIdx: number,
-): ChatMessage['parts'];
-export function useMessagePartsByPartRange<
-  T extends ChatMessage['parts'][number]['type'],
->(
-  messageId: string,
-  startIdx: number,
-  endIdx: number,
-  type: T,
-): Array<Extract<ChatMessage['parts'][number], { type: T }>>;
-export function useMessagePartsByPartRange<
-  T extends ChatMessage['parts'][number]['type'],
->(messageId: string, startIdx: number, endIdx: number, type?: T) {
-  return chatStore(
-    useShallow(
-      (state) =>
-        state.getMessagePartsRangeCached(
-          messageId,
-          startIdx,
-          endIdx,
-          type as unknown as string | undefined,
-        ) as unknown as ChatMessage['parts'],
-    ),
-  ) as unknown as T extends ChatMessage['parts'][number]['type']
-    ? Array<Extract<ChatMessage['parts'][number], { type: T }>>
-    : ChatMessage['parts'];
-}
-
-// Internal messages hook for immediate access (no throttling)
-export const useInternalMessages = () =>
-  chatStore(useShallow((state) => state.getInternalMessages()));
-
-// Action hooks for cleaner API
-export const useChatActions = () =>
-  chatStore(
-    useShallow((state) => ({
-      setMessages: state.setMessages,
-      pushMessage: state.pushMessage,
-      popMessage: state.popMessage,
-      replaceMessage: state.replaceMessage,
-      setStatus: state.setStatus,
-      setError: state.setError,
-      setId: state.setId,
-      setNewChat: state.setNewChat,
-    })),
-  );
-
-// Convenience hook for just setMessages
-export const useSetMessages = () => chatStore((state) => state.setMessages);
-
-// Markdown blocks selector hook for Response/other renderers
-export const useMarkdownBlocksForPart = (messageId: string, partIdx: number) =>
-  chatStore(
-    useShallow((state) => state.getMarkdownBlocksForPart(messageId, partIdx)),
-  );
-
-export const useMarkdownBlockIndexesForPart = (
-  messageId: string,
-  partIdx: number,
-) =>
-  chatStore((state) => state.getMarkdownBlockCountForPart(messageId, partIdx));
-
-export const useMarkdownBlockCountForPart = (
-  messageId: string,
-  partIdx: number,
-) =>
-  chatStore((state) => state.getMarkdownBlockCountForPart(messageId, partIdx));
-
-export const useMarkdownBlockByIndex = (
-  messageId: string,
-  partIdx: number,
-  blockIdx: number,
-) =>
-  chatStore((state) =>
-    state.getMarkdownBlockByIndex(messageId, partIdx, blockIdx),
-  );
-
-// Selector for sendMessage helper
-export const useSendMessage = () =>
-  chatStore((state) => state.currentChatHelpers?.sendMessage);
 
 export class ZustandChat<
   UI_MESSAGE extends UIMessage,
@@ -808,16 +540,250 @@ export class ZustandChat<
     );
   }
 
-  // Expose the subscription methods for useChat
   '~registerMessagesCallback' = (
     onChange: () => void,
     throttleWaitMs?: number,
   ): (() => void) =>
     this.zustandState['~registerMessagesCallback'](onChange, throttleWaitMs);
-
   '~registerStatusCallback' = (onChange: () => void): (() => void) =>
     this.zustandState['~registerStatusCallback'](onChange);
-
   '~registerErrorCallback' = (onChange: () => void): (() => void) =>
     this.zustandState['~registerErrorCallback'](onChange);
+}
+
+type ChatStoreApi = ReturnType<typeof createChatStore<ChatMessage>>;
+
+const ChatStoreContext = createContext<ChatStoreApi | undefined>(undefined);
+
+export function ChatStoreProvider({
+  children,
+  initialMessages,
+}: {
+  children: React.ReactNode;
+  initialMessages: Array<ChatMessage>;
+}) {
+  const storeRef = useRef<ChatStoreApi | null>(null);
+  const chatStateRef = useRef<ZustandChatState<ChatMessage> | null>(null);
+  if (storeRef.current === null) {
+    storeRef.current = createChatStore<ChatMessage>(initialMessages);
+  }
+  if (chatStateRef.current === null) {
+    chatStateRef.current = new ZustandChatState<ChatMessage>(storeRef.current);
+  }
+  return (
+    <ChatStoreContext.Provider value={storeRef.current}>
+      <ChatStateContext.Provider value={chatStateRef.current ?? undefined}>
+        {children}
+      </ChatStateContext.Provider>
+    </ChatStoreContext.Provider>
+  );
+}
+
+export function useChatStore<T>(
+  selector: (store: ChatStoreState<ChatMessage>) => T,
+  equalityFn?: (a: T, b: T) => boolean,
+): T;
+export function useChatStore(): ChatStoreState<ChatMessage>;
+export function useChatStore<T = ChatStoreState<ChatMessage>>(
+  selector?: (store: ChatStoreState<ChatMessage>) => T,
+  equalityFn?: (a: T, b: T) => boolean,
+) {
+  const store = useContext(ChatStoreContext);
+  if (!store)
+    throw new Error('useChatStore must be used within ChatStoreProvider');
+  const selectorOrIdentity =
+    (selector as (store: ChatStoreState<ChatMessage>) => T) ??
+    ((s: ChatStoreState<ChatMessage>) => s as unknown as T);
+  return useStoreWithEqualityFn(store, selectorOrIdentity, equalityFn);
+}
+
+export function useChatStoreApi() {
+  const store = useContext(ChatStoreContext);
+  if (!store)
+    throw new Error('useChatStoreApi must be used within ChatStoreProvider');
+  return store;
+}
+
+// Selector hooks using throttled messages where relevant
+export const useChatMessages = () =>
+  useChatStore((state) => state.getThrottledMessages());
+export const useChatStatus = () => useChatStore((state) => state.status);
+export const useChatError = () => useChatStore((state) => state.error);
+export const useChatId = () => useChatStore((state) => state.id);
+export const useMessageIds = () =>
+  useChatStore((state) => state.getMessageIds(), shallow);
+export const useMessageById = (messageId: string): ChatMessage =>
+  useChatStore((state) => {
+    const message = state
+      .getThrottledMessages()
+      .find((m) => m.id === messageId);
+    if (!message) throw new Error(`Message not found for id: ${messageId}`);
+    return message;
+  });
+
+export const useMessageRoleById = (messageId: string): ChatMessage['role'] =>
+  useChatStore((state) => {
+    const message = state
+      .getThrottledMessages()
+      .find((m) => m.id === messageId);
+    if (!message) throw new Error(`Message not found for id: ${messageId}`);
+    return message.role;
+  });
+export const useMessagePartsById = (messageId: string): ChatMessage['parts'] =>
+  useChatStore((state) => {
+    const message = state
+      .getThrottledMessages()
+      .find((m) => m.id === messageId);
+    if (!message) throw new Error(`Message not found for id: ${messageId}`);
+    return message.parts;
+  }, shallow);
+export const useMessageResearchUpdatePartsById = (
+  messageId: string,
+): Extract<ChatMessage['parts'][number], { type: 'data-researchUpdate' }>[] =>
+  useChatStore((state) => {
+    const message = state
+      .getThrottledMessages()
+      .find((m) => m.id === messageId);
+    if (!message) throw new Error(`Message not found for id: ${messageId}`);
+    return message.parts.filter(
+      (p) => p.type === 'data-researchUpdate',
+    ) as Extract<
+      ChatMessage['parts'][number],
+      { type: 'data-researchUpdate' }
+    >[];
+  }, equal);
+export const useMessageMetadataById = (
+  messageId: string,
+): ChatMessage['metadata'] =>
+  useChatStore((state) => {
+    const message = state
+      .getThrottledMessages()
+      .find((m) => m.id === messageId);
+    if (!message) throw new Error(`Message not found for id: ${messageId}`);
+    return message.metadata;
+  }, shallow);
+export const useMessagePartTypesById = (
+  messageId: string,
+): Array<ChatMessage['parts'][number]['type']> =>
+  useChatStore((state) => state.getMessagePartTypesById(messageId), shallow);
+
+export function useMessagePartByPartIdx(
+  messageId: string,
+  partIdx: number,
+): ChatMessage['parts'][number];
+export function useMessagePartByPartIdx<
+  T extends ChatMessage['parts'][number]['type'],
+>(
+  messageId: string,
+  partIdx: number,
+  type: T,
+): Extract<ChatMessage['parts'][number], { type: T }>;
+export function useMessagePartByPartIdx<
+  T extends ChatMessage['parts'][number]['type'],
+>(messageId: string, partIdx: number, type?: T) {
+  const part = useChatStore((state) =>
+    state.getMessagePartByIdxCached(messageId, partIdx),
+  );
+  if (type !== undefined) {
+    if (part.type !== type) {
+      throw new Error(
+        `Part type mismatch for id: ${messageId} at partIdx: ${partIdx}. Expected ${String(type)}, got ${String(
+          part.type,
+        )}`,
+      );
+    }
+  }
+  return part as unknown as T extends ChatMessage['parts'][number]['type']
+    ? Extract<ChatMessage['parts'][number], { type: T }>
+    : ChatMessage['parts'][number];
+}
+
+export function useMessagePartsByPartRange(
+  messageId: string,
+  startIdx: number,
+  endIdx: number,
+): ChatMessage['parts'];
+export function useMessagePartsByPartRange<
+  T extends ChatMessage['parts'][number]['type'],
+>(
+  messageId: string,
+  startIdx: number,
+  endIdx: number,
+  type: T,
+): Array<Extract<ChatMessage['parts'][number], { type: T }>>;
+export function useMessagePartsByPartRange<
+  T extends ChatMessage['parts'][number]['type'],
+>(messageId: string, startIdx: number, endIdx: number, type?: T) {
+  return useChatStore(
+    (state) =>
+      state.getMessagePartsRangeCached(
+        messageId,
+        startIdx,
+        endIdx,
+        type as unknown as string | undefined,
+      ) as unknown as ChatMessage['parts'],
+    equal,
+  ) as unknown as T extends ChatMessage['parts'][number]['type']
+    ? Array<Extract<ChatMessage['parts'][number], { type: T }>>
+    : ChatMessage['parts'];
+}
+
+export const useInternalMessages = () =>
+  useChatStore((state) => state.getInternalMessages(), shallow);
+export const useChatActions = () =>
+  useChatStore(
+    (state) => ({
+      setMessages: state.setMessages,
+      pushMessage: state.pushMessage,
+      popMessage: state.popMessage,
+      replaceMessage: state.replaceMessage,
+      setStatus: state.setStatus,
+      setError: state.setError,
+      setId: state.setId,
+      setNewChat: state.setNewChat,
+    }),
+    shallow,
+  );
+export const useSetMessages = () => useChatStore((state) => state.setMessages);
+export const useChatHelperStop = () =>
+  useChatStore((state) => state.currentChatHelpers?.stop);
+export const useMarkdownBlocksForPart = (messageId: string, partIdx: number) =>
+  useChatStore((state) => state.getMarkdownBlocksForPart(messageId, partIdx));
+export const useMarkdownBlockIndexesForPart = (
+  messageId: string,
+  partIdx: number,
+) =>
+  useChatStore((state) =>
+    state.getMarkdownBlockCountForPart(messageId, partIdx),
+  );
+export const useMarkdownBlockCountForPart = (
+  messageId: string,
+  partIdx: number,
+) =>
+  useChatStore((state) =>
+    state.getMarkdownBlockCountForPart(messageId, partIdx),
+  );
+export const useMarkdownBlockByIndex = (
+  messageId: string,
+  partIdx: number,
+  blockIdx: number,
+) =>
+  useChatStore((state) =>
+    state.getMarkdownBlockByIndex(messageId, partIdx, blockIdx),
+  );
+export const useSendMessage = () =>
+  useChatStore((state) => state.currentChatHelpers?.sendMessage);
+
+// ZustandChatState instance per provider
+const ChatStateContext = createContext<
+  ZustandChatState<ChatMessage> | undefined
+>(undefined);
+
+export function useChatStateInstance() {
+  const state = useContext(ChatStateContext);
+  if (!state)
+    throw new Error(
+      'useChatStateInstance must be used within ChatStateProvider',
+    );
+  return state;
 }

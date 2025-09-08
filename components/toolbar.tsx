@@ -32,7 +32,8 @@ import type { ArtifactToolbarItem } from './create-artifact';
 import type { UseChatHelpers } from '@ai-sdk/react';
 import { useChatInput } from '@/providers/chat-input-provider';
 import type { ChatMessage } from '@/lib/ai/types';
-import { chatStore, useSendMessage } from '@/lib/stores/chat-store';
+import { useSendMessage } from '@/lib/stores/chat-store-context';
+import type { useChatStoreApi } from '@/lib/stores/chat-store-context';
 
 type ToolProps = {
   description: string;
@@ -44,9 +45,12 @@ type ToolProps = {
   isAnimating: boolean;
   onClick: ({
     sendMessage,
+    storeApi,
   }: {
     sendMessage: UseChatHelpers<ChatMessage>['sendMessage'];
+    storeApi: ReturnType<typeof useChatStoreApi>;
   }) => void;
+  storeApi: ReturnType<typeof useChatStoreApi>;
 };
 
 function Tool({
@@ -58,6 +62,7 @@ function Tool({
   setIsToolbarVisible,
   isAnimating,
   onClick,
+  storeApi,
 }: ToolProps) {
   const sendMessage = useSendMessage();
   const [isHovered, setIsHovered] = useState(false);
@@ -84,7 +89,7 @@ function Tool({
       setSelectedTool(description);
     } else {
       setSelectedTool(null);
-      if (sendMessage) onClick({ sendMessage });
+      if (sendMessage) onClick({ sendMessage, storeApi });
     }
   };
 
@@ -138,9 +143,11 @@ const randomArr = [...Array(6)].map((x) => nanoid(5));
 function ReadingLevelSelector({
   setSelectedTool,
   isAnimating,
+  storeApi,
 }: {
   setSelectedTool: Dispatch<SetStateAction<string | null>>;
   isAnimating: boolean;
+  storeApi: ReturnType<typeof useChatStoreApi>;
 }) {
   const sendMessage = useSendMessage();
   const LEVELS = [
@@ -227,7 +234,7 @@ function ReadingLevelSelector({
                   metadata: {
                     selectedModel: selectedModelId,
                     createdAt: new Date(),
-                    parentMessageId: chatStore.getState().getLastMessageId(),
+                    parentMessageId: storeApi.getState().getLastMessageId(),
                   },
                 });
 
@@ -257,6 +264,7 @@ export function Tools({
   isAnimating,
   setIsToolbarVisible,
   tools,
+  storeApi,
 }: {
   isToolbarVisible: boolean;
   selectedTool: string | null;
@@ -264,6 +272,7 @@ export function Tools({
   isAnimating: boolean;
   setIsToolbarVisible: Dispatch<SetStateAction<boolean>>;
   tools: Array<ArtifactToolbarItem>;
+  storeApi: ReturnType<typeof useChatStoreApi>;
 }) {
   const [primaryTool, ...secondaryTools] = tools;
 
@@ -285,6 +294,7 @@ export function Tools({
               setSelectedTool={setSelectedTool}
               isAnimating={isAnimating}
               onClick={secondaryTool.onClick}
+              storeApi={storeApi}
             />
           ))}
       </AnimatePresence>
@@ -298,6 +308,7 @@ export function Tools({
         setIsToolbarVisible={setIsToolbarVisible}
         isAnimating={isAnimating}
         onClick={primaryTool.onClick}
+        storeApi={storeApi}
       />
     </motion.div>
   );
@@ -309,12 +320,14 @@ function PureToolbar({
   status,
   stop,
   artifactKind,
+  storeApi,
 }: {
   isToolbarVisible: boolean;
   setIsToolbarVisible: Dispatch<SetStateAction<boolean>>;
   status: UseChatHelpers<ChatMessage>['status'];
   stop: UseChatHelpers<ChatMessage>['stop'];
   artifactKind: ArtifactKind;
+  storeApi: ReturnType<typeof useChatStoreApi>;
 }) {
   const toolbarRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
@@ -428,7 +441,6 @@ function PureToolbar({
             className="p-3"
             onClick={() => {
               stop();
-              // No need to call setMessages here as we're just stopping
             }}
           >
             <StopIcon />
@@ -438,6 +450,7 @@ function PureToolbar({
             key="reading-level-selector"
             setSelectedTool={setSelectedTool}
             isAnimating={isAnimating}
+            storeApi={storeApi}
           />
         ) : (
           <Tools
@@ -448,6 +461,7 @@ function PureToolbar({
             setIsToolbarVisible={setIsToolbarVisible}
             setSelectedTool={setSelectedTool}
             tools={toolsByArtifactKind}
+            storeApi={storeApi}
           />
         )}
       </motion.div>

@@ -46,6 +46,8 @@ Access every major AI assistant Claude, GPT-4, Gemini, Grok, and 20+ models thro
 
 - **📄 Document Creation** - Generate and edit documents, spreadsheets, and presentations.
 
+- **📊 Web Analytics** - Built-in Vercel Web Analytics (enable in Vercel dashboard).
+
 
 ## 🛠️ Tech Stack
 

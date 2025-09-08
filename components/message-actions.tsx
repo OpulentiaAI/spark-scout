@@ -8,15 +8,18 @@ import { toast } from 'sonner';
 import { useTRPC } from '@/trpc/react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
-import { ChevronLeft, ChevronRight, Pencil, PencilOff } from 'lucide-react';
-import { useMessageTree } from '@/providers/message-tree-provider';
+import { Pencil, PencilOff } from 'lucide-react';
 import { RetryButton } from './retry-button';
 import { memo } from 'react';
 import equal from 'fast-deep-equal';
-import { chatStore, useMessageRoleById } from '@/lib/stores/chat-store';
+import {
+  useMessageRoleById,
+  useChatStoreApi,
+  useMessageById,
+} from '@/lib/stores/chat-store-context';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Tag } from '@/components/tag';
-
+import { MessageSiblings } from './message-siblings';
+import { Tag } from './tag';
 export function PureMessageActions({
   chatId,
   messageId,
@@ -36,11 +39,11 @@ export function PureMessageActions({
   onStartEdit?: () => void;
   onCancelEdit?: () => void;
 }) {
+  const storeApi = useChatStoreApi();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [_, copyToClipboard] = useCopyToClipboard();
   const { data: session } = useSession();
-  const { getMessageSiblingInfo, navigateToSibling } = useMessageTree();
   const role = useMessageRoleById(messageId);
 
   const isAuthenticated = !!session?.user;
@@ -56,9 +59,7 @@ export function PureMessageActions({
     }),
   );
 
-  // Get sibling info for navigation
-  const siblingInfo = getMessageSiblingInfo(messageId);
-  const hasSiblings = siblingInfo && siblingInfo.siblings.length > 1;
+  // Version selector and model tag handled by MessageVersionAndModel component
 
   if (isLoading) return null;
 
@@ -93,7 +94,7 @@ export function PureMessageActions({
         tooltip="Copy"
         className="text-muted-foreground hover:text-accent-foreground hover:bg-accent h-7 w-7 p-0"
         onClick={async () => {
-          const message = chatStore
+          const message = storeApi
             .getState()
             .messages.find((m) => m.id === messageId);
           if (!message) return;
@@ -116,33 +117,7 @@ export function PureMessageActions({
         <CopyIcon size={14} />
       </Action>
 
-      {hasSiblings && (
-        <div className="flex gap-1 items-center justify-center">
-          <Action
-            tooltip="Previous version"
-            className="text-muted-foreground hover:text-accent-foreground hover:bg-accent h-7 w-7 px-0"
-            onClick={() => navigateToSibling(messageId, 'prev')}
-            disabled={siblingInfo.siblingIndex === 0}
-          >
-            <ChevronLeft className="h-3.5 w-3.5" />
-          </Action>
-
-          <span className="text-muted-foreground text-xs">
-            {siblingInfo.siblingIndex + 1}/{siblingInfo.siblings.length}
-          </span>
-
-          <Action
-            tooltip="Next version"
-            className="text-muted-foreground hover:text-accent-foreground hover:bg-accent h-7 w-7 px-0"
-            onClick={() => navigateToSibling(messageId, 'next')}
-            disabled={
-              siblingInfo.siblingIndex === siblingInfo.siblings.length - 1
-            }
-          >
-            <ChevronRight className="h-3.5 w-3.5" />
-          </Action>
-        </div>
-      )}
+      <MessageSiblings messageId={messageId} isReadOnly={isReadOnly} />
 
       {role === 'assistant' && !isReadOnly && isAuthenticated && (
         <>
@@ -193,22 +168,20 @@ export function PureMessageActions({
           </Action>
 
           {!isReadOnly && <RetryButton messageId={messageId} />}
-          {(() => {
-            const message = chatStore
-              .getState()
-              .messages.find((m) => m.id === messageId);
-            return (
-              message?.metadata?.selectedModel && (
-                <div className="flex items-center ml-2">
-                  <Tag>{message.metadata.selectedModel}</Tag>
-                </div>
-              )
-            );
-          })()}
+          <SelectedModelId messageId={messageId} />
         </>
       )}
     </Actions>
   );
+}
+
+function SelectedModelId({ messageId }: { messageId: string }) {
+  const message = useMessageById(messageId);
+  return message?.metadata?.selectedModel ? (
+    <div className="flex items-center ml-2">
+      <Tag>{message.metadata.selectedModel}</Tag>
+    </div>
+  ) : null;
 }
 
 export const MessageActions = memo(

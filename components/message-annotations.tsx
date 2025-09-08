@@ -4,7 +4,7 @@ import type {
   ResearchUpdate,
 } from '@/lib/ai/tools/research-updates-schema';
 import { Sources } from './sources';
-import { useMessageResearchUpdatePartsById } from '@/lib/stores/chat-store';
+import { useMessageResearchUpdatePartsById } from '@/lib/stores/chat-store-context';
 import { memo } from 'react';
 
 export const SourcesAnnotations = memo(

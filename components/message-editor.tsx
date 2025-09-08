@@ -14,7 +14,7 @@ import {
   getTextContentFromMessage,
 } from '@/lib/utils';
 import type { ModelId } from '@/lib/models/model-id';
-import { useChatStatus } from '@/lib/stores/chat-store';
+import { useChatStatus } from '@/lib/stores/chat-store-context';
 
 export type MessageEditorProps = {
   chatId: string;

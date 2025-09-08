@@ -6,9 +6,9 @@ import { Action } from '@/components/ai-elements/actions';
 // ChatMessage type not needed directly here
 import {
   useSetMessages,
-  chatStore,
   useSendMessage,
-} from '@/lib/stores/chat-store';
+  useChatStoreApi,
+} from '@/lib/stores/chat-store-context';
 
 export function RetryButton({
   messageId,
@@ -19,6 +19,7 @@ export function RetryButton({
 }) {
   const setMessages = useSetMessages();
   const sendMessage = useSendMessage();
+  const chatStore = useChatStoreApi();
 
   const handleRetry = useCallback(() => {
     if (!sendMessage) {
@@ -65,7 +66,7 @@ export function RetryButton({
     );
 
     toast.success('Retrying message...');
-  }, [sendMessage, messageId, setMessages]);
+  }, [sendMessage, messageId, setMessages, chatStore]);
 
   return (
     <Action

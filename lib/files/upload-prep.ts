@@ -1,66 +1,100 @@
-export interface ImageUploadLimits {
-  maxBytes: number;
-  maxDimension: number;
-}
+// Utilities for client-side file preparation prior to upload
 
-export interface ProcessedFileResult {
-  processedImages: File[];
-  pdfFiles: File[];
-  stillOversized: File[];
-  unsupportedFiles: File[];
+import imageCompression from 'browser-image-compression';
+
+export async function compressImageIfNeeded(
+  file: File,
+  {
+    maxBytes,
+    maxDimension,
+    minQuality = 0.5,
+  }: {
+    maxBytes: number;
+    maxDimension: number;
+    minQuality?: number;
+  },
+): Promise<File> {
+  if (!file.type.startsWith('image/')) return file;
+  if (file.size <= maxBytes) return file;
+
+  // Only compress JPEG/PNG. Leave others unchanged.
+  if (!['image/jpeg', 'image/png'].includes(file.type)) return file;
+
+  const outputMime = file.type;
+
+  const options = {
+    maxSizeMB: maxBytes / (1024 * 1024),
+    maxWidthOrHeight: maxDimension,
+    useWebWorker: true,
+    fileType: outputMime,
+    initialQuality: Math.min(0.9, Math.max(minQuality, 0.1)),
+  } as const;
+
+  try {
+    const maybeResult = await imageCompression(file, options);
+    const resultBlob =
+      maybeResult instanceof File
+        ? maybeResult
+        : new File([maybeResult], file.name, {
+            type: outputMime,
+            lastModified: Date.now(),
+          });
+    if (resultBlob.size >= file.size) return file;
+
+    const base = file.name.replace(/\.[^.]+$/, '');
+    const ext =
+      outputMime === 'image/jpeg'
+        ? 'jpg'
+        : outputMime === 'image/png'
+          ? 'png'
+          : (outputMime.split('/')[1] ?? 'jpg');
+    return new File([resultBlob], `${base}.${ext}`, {
+      type: outputMime,
+      lastModified: Date.now(),
+    });
+  } catch {
+    return file;
+  }
 }
 
 export async function processFilesForUpload(
   files: File[],
-  limits: ImageUploadLimits,
-): Promise<ProcessedFileResult> {
+  options: {
+    maxBytes: number;
+    maxDimension: number;
+  },
+): Promise<{
+  processedImages: File[];
+  pdfFiles: File[];
+  stillOversized: File[];
+  unsupportedFiles: File[];
+}> {
   const processedImages: File[] = [];
   const pdfFiles: File[] = [];
   const stillOversized: File[] = [];
   const unsupportedFiles: File[] = [];
 
+  const maxBytes = options.maxBytes;
+
   for (const file of files) {
-    // Check file type
     if (file.type.startsWith('image/')) {
-      // Process image
-      try {
-        const processedImage = await processImageFile(file, limits);
-        if (processedImage) {
-          processedImages.push(processedImage);
-        } else {
-          stillOversized.push(file);
-        }
-      } catch (error) {
-        console.error('Error processing image:', error);
-        unsupportedFiles.push(file);
+      const maybeCompressed = await compressImageIfNeeded(file, options);
+      if (maybeCompressed.size > maxBytes) {
+        stillOversized.push(file);
+        continue;
       }
+      processedImages.push(maybeCompressed);
     } else if (file.type === 'application/pdf') {
-      // PDF files are accepted as-is
+      if (file.size > maxBytes) {
+        stillOversized.push(file);
+        continue;
+      }
       pdfFiles.push(file);
     } else {
-      // Unsupported file type
       unsupportedFiles.push(file);
     }
   }
 
-  return {
-    processedImages,
-    pdfFiles,
-    stillOversized,
-    unsupportedFiles,
-  };
+  return { processedImages, pdfFiles, stillOversized, unsupportedFiles };
 }
 
-async function processImageFile(
-  file: File,
-  limits: ImageUploadLimits,
-): Promise<File | null> {
-  // Check if file is already within limits
-  if (file.size <= limits.maxBytes) {
-    return file;
-  }
-
-  // For now, if file is too large, return null (will be added to stillOversized)
-  // In a real implementation, you would compress/resize the image here
-  return null;
-}

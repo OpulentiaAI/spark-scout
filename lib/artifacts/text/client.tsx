@@ -12,7 +12,6 @@ import {
 } from '@/components/icons';
 import type { Suggestion } from '@/lib/db/schema';
 import { toast } from 'sonner';
-import { chatStore } from '@/lib/stores/chat-store';
 import {
   DEFAULT_POLISH_TEXT_MODEL,
   DEFAULT_SUGGESTIONS_MODEL,
@@ -175,7 +174,7 @@ export const textArtifact = new Artifact<'text', TextArtifactMetadata>({
     {
       icon: <PenIcon />,
       description: 'Add final polish',
-      onClick: ({ sendMessage }) => {
+      onClick: ({ sendMessage, storeApi }) => {
         sendMessage({
           role: 'user',
           parts: [
@@ -187,7 +186,7 @@ export const textArtifact = new Artifact<'text', TextArtifactMetadata>({
           metadata: {
             selectedModel: DEFAULT_POLISH_TEXT_MODEL,
             createdAt: new Date(),
-            parentMessageId: chatStore.getState().getLastMessageId(),
+            parentMessageId: storeApi.getState().getLastMessageId(),
           },
         });
       },
@@ -195,7 +194,7 @@ export const textArtifact = new Artifact<'text', TextArtifactMetadata>({
     {
       icon: <MessageIcon />,
       description: 'Request suggestions',
-      onClick: ({ sendMessage }) => {
+      onClick: ({ sendMessage, storeApi }) => {
         sendMessage({
           role: 'user',
           parts: [
@@ -207,7 +206,7 @@ export const textArtifact = new Artifact<'text', TextArtifactMetadata>({
           metadata: {
             selectedModel: DEFAULT_SUGGESTIONS_MODEL,
             createdAt: new Date(),
-            parentMessageId: chatStore.getState().getLastMessageId(),
+            parentMessageId: storeApi.getState().getLastMessageId(),
           },
         });
       },

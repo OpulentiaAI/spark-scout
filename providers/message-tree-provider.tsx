@@ -16,7 +16,7 @@ import { useTRPC } from '@/trpc/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useChatId } from './chat-id-provider';
 import type { ChatMessage } from '@/lib/ai/types';
-import { useSetMessages } from '@/lib/stores/chat-store';
+import { useSetMessages } from '@/lib/stores/chat-store-context';
 
 interface MessageSiblingInfo {
   siblings: ChatMessage[];

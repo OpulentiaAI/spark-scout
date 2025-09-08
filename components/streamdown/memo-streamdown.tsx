@@ -11,7 +11,7 @@ import { cn } from './lib/utils';
 import {
   useMarkdownBlockByIndex,
   useMarkdownBlockCountForPart,
-} from '@/lib/stores/chat-store';
+} from '@/lib/stores/chat-store-context';
 import { ShikiThemeContext } from './index';
 import type { BundledTheme } from 'shiki';
 

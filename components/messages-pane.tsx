@@ -3,7 +3,7 @@ import { memo } from 'react';
 import { Messages } from './messages';
 import { MultimodalInput } from './multimodal-input';
 import { CloneChatButton } from '@/components/clone-chat-button';
-import { chatStore } from '@/lib/stores/chat-store';
+import { useChatStore } from '@/lib/stores/chat-store-context';
 import type { Vote } from '@/lib/db/schema';
 import type { UseChatHelpers } from '@ai-sdk/react';
 import type { ChatMessage } from '@/lib/ai/types';
@@ -26,7 +26,7 @@ function PureMessagesPane({
   isVisible,
   className,
 }: MessagesPaneProps) {
-  const parentMessageId = chatStore.getState().getLastMessageId();
+  const parentMessageId = useChatStore((state) => state.getLastMessageId());
 
   return (
     <div

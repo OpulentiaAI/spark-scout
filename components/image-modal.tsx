@@ -21,7 +21,7 @@ export function ImageModal({
       <DialogContent>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={imageUrl}
+          src={imageUrl || undefined}
           alt={imageName ?? 'Expanded image'}
           className="max-w-full max-h-[90vh] object-contain rounded-lg"
           onClick={(e: React.MouseEvent) => e.stopPropagation()}

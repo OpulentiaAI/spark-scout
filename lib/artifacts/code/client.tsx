@@ -15,7 +15,6 @@ import {
   type ConsoleOutput,
   type ConsoleOutputContent,
 } from '@/components/console';
-import { chatStore } from '@/lib/stores/chat-store';
 import { DEFAULT_CODE_EDITS_MODEL } from '@/lib/ai/all-models';
 
 const OUTPUT_HANDLERS = {
@@ -273,7 +272,7 @@ export const codeArtifact = new Artifact<'code', Metadata>({
     {
       icon: <MessageIcon />,
       description: 'Add comments',
-      onClick: ({ sendMessage }) => {
+      onClick: ({ sendMessage, storeApi }) => {
         sendMessage({
           role: 'user',
           parts: [
@@ -285,7 +284,7 @@ export const codeArtifact = new Artifact<'code', Metadata>({
           metadata: {
             selectedModel: DEFAULT_CODE_EDITS_MODEL,
             createdAt: new Date(),
-            parentMessageId: chatStore.getState().getLastMessageId(),
+            parentMessageId: storeApi.getState().getLastMessageId(),
           },
         });
       },
@@ -293,7 +292,7 @@ export const codeArtifact = new Artifact<'code', Metadata>({
     {
       icon: <LogsIcon />,
       description: 'Add logs',
-      onClick: ({ sendMessage }) => {
+      onClick: ({ sendMessage, storeApi }) => {
         sendMessage({
           role: 'user',
           parts: [
@@ -305,7 +304,7 @@ export const codeArtifact = new Artifact<'code', Metadata>({
           metadata: {
             selectedModel: DEFAULT_CODE_EDITS_MODEL,
             createdAt: new Date(),
-            parentMessageId: chatStore.getState().getLastMessageId(),
+            parentMessageId: storeApi.getState().getLastMessageId(),
           },
         });
       },

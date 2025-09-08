@@ -7,7 +7,7 @@ import { cn, getAttachmentsFromMessage } from '@/lib/utils';
 import { MessageEditor } from './message-editor';
 import { AttachmentList } from './attachment-list';
 import { ImageModal } from './image-modal';
-import { useChatId, useMessageById } from '@/lib/stores/chat-store';
+import { useChatId, useMessageById } from '@/lib/stores/chat-store-context';
 import {
   Message as AIMessage,
   MessageContent as AIMessageContent,

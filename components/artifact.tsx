@@ -24,6 +24,7 @@ import { useDocuments, useSaveDocument } from '@/hooks/chat-sync-hooks';
 import { useTRPC } from '@/trpc/react';
 //
 import type { ArtifactKind } from '@/lib/artifacts/artifact-kind';
+import { useChatStoreApi } from '@/lib/stores/chat-store-context';
 
 export const artifactDefinitions = [textArtifact, codeArtifact, sheetArtifact];
 
@@ -58,6 +59,7 @@ function PureArtifact({
   isReadonly: boolean;
   isAuthenticated: boolean;
 }) {
+  const storeApi = useChatStoreApi();
   const { artifact, setArtifact, metadata, setMetadata } = useArtifact();
   const queryClient = useQueryClient();
   const trpc = useTRPC();
@@ -448,6 +450,7 @@ function PureArtifact({
                       status={status}
                       stop={stop}
                       artifactKind={artifact.kind}
+                      storeApi={storeApi}
                     />
                   )}
                 </AnimatePresence>

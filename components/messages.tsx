@@ -13,7 +13,7 @@ import {
   useChatId,
   useChatStatus,
   useMessageIds,
-} from '@/lib/stores/chat-store';
+} from '@/lib/stores/chat-store-context';
 
 interface PureMessagesInternalProps {
   votes: Array<Vote> | undefined;
@@ -26,7 +26,7 @@ const PureMessagesInternal = memo(function PureMessagesInternal({
 }: PureMessagesInternalProps) {
   const chatId = useChatId();
   const status = useChatStatus();
-  const messageIds = useMessageIds();
+  const messageIds = useMessageIds() as string[];
 
   if (!chatId) {
     return null;

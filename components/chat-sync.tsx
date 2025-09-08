@@ -9,15 +9,20 @@ import type { ChatMessage } from '@/lib/ai/types';
 import { generateUUID, fetchWithErrorHandlers } from '@/lib/utils';
 import { useSaveMessageMutation } from '@/hooks/chat-sync-hooks';
 import { useDataStream } from '@/components/data-stream-provider';
-import { ZustandChat, chatState, chatStore } from '@/lib/stores/chat-store';
+import {
+  ZustandChat,
+  useChatStoreApi,
+  useChatStateInstance,
+} from '@/lib/stores/chat-store-context';
 import { useAutoResume } from '@/hooks/use-auto-resume';
 
 function useRecreateChat(id: string, initialMessages: Array<ChatMessage>) {
+  const chatStore = useChatStoreApi();
   useEffect(() => {
     if (id !== chatStore.getState().id) {
       chatStore.getState().setNewChat(id, initialMessages || []);
     }
-  }, [id, initialMessages]);
+  }, [id, initialMessages, chatStore]);
 }
 
 export function ChatSync({
@@ -27,6 +32,7 @@ export function ChatSync({
   id: string;
   initialMessages: Array<ChatMessage>;
 }) {
+  const chatStore = useChatStoreApi();
   const { data: session } = useSession();
   const { mutate: saveChatMessage } = useSaveMessageMutation();
   const { setDataStream } = useDataStream();
@@ -34,6 +40,7 @@ export function ChatSync({
   useRecreateChat(id, initialMessages);
 
   const isAuthenticated = !!session?.user;
+  const chatState = useChatStateInstance();
 
   const chat = useMemo(() => {
     const instance = new ZustandChat<ChatMessage>({
@@ -73,7 +80,7 @@ export function ChatSync({
       },
     });
     return instance;
-  }, [id, saveChatMessage, setDataStream, isAuthenticated]);
+  }, [id, saveChatMessage, setDataStream, isAuthenticated, chatState]);
 
   const helpers = useChat<ChatMessage>({
     // @ts-expect-error private field
@@ -82,12 +89,13 @@ export function ChatSync({
   });
 
   useEffect(() => {
+    console.log('setting current chat helpers');
     chatStore.getState().setCurrentChatHelpers({
       stop: helpers.stop,
       sendMessage: helpers.sendMessage,
       regenerate: helpers.regenerate,
     });
-  }, [helpers.stop, helpers.sendMessage, helpers.regenerate]);
+  }, [helpers.stop, helpers.sendMessage, helpers.regenerate, chatStore]);
 
   useAutoResume({
     autoResume: true,

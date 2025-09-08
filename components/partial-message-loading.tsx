@@ -4,7 +4,7 @@ import { Skeleton } from './ui/skeleton';
 import {
   useMessageMetadataById,
   useMessagePartTypesById,
-} from '@/lib/stores/chat-store';
+} from '@/lib/stores/chat-store-context';
 
 export function PartialMessageLoading({ messageId }: { messageId: string }) {
   const metadata = useMessageMetadataById(messageId);

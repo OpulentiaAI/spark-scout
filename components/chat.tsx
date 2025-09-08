@@ -13,9 +13,9 @@ import type { ChatMessage } from '@/lib/ai/types';
 import {
   useChatStatus,
   useMessageIds,
-  chatStore,
   useChatId,
-} from '@/lib/stores/chat-store';
+  useChatStoreApi,
+} from '@/lib/stores/chat-store-context';
 import { useCallback } from 'react';
 import type { UseChatHelpers } from '@ai-sdk/react';
 
@@ -28,18 +28,19 @@ export function Chat({
   initialMessages: Array<ChatMessage>;
   isReadonly: boolean;
 }) {
+  const chatStore = useChatStoreApi();
   const trpc = useTRPC();
   const { data: session } = useSession();
   const isLoading = id !== useChatId();
 
-  const messageIds = useMessageIds();
+  const messageIds = useMessageIds() as string[];
   const status = useChatStatus();
   const stopAsync: UseChatHelpers<ChatMessage>['stop'] =
     useCallback(async () => {
       const helpers = chatStore.getState().currentChatHelpers;
       if (!helpers?.stop) return;
       return helpers.stop();
-    }, []);
+    }, [chatStore]);
   // regenerate no longer needs to be drilled; components call the store directly
 
   const { data: votes } = useQuery({

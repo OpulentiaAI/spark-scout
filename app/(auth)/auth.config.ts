@@ -19,6 +19,15 @@ export const authConfig = {
         return true;
       }
 
+      // Allow public Next.js metadata file routes
+      const isMetadataRoute =
+        nextUrl.pathname === '/sitemap.xml' ||
+        nextUrl.pathname === '/robots.txt' ||
+        nextUrl.pathname === '/manifest.webmanifest';
+      if (isMetadataRoute) {
+        return true;
+      }
+
       // Allow tRPC API routes for public shared documents
       const isTrpcApi = nextUrl.pathname.startsWith('/api/trpc');
       if (isTrpcApi) {
