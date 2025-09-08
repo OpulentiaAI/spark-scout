@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUserByEmail, createPasswordResetToken } from '@/lib/db/queries';
+import { Resend } from 'resend';
 import crypto from 'node:crypto';
 
 const ForgotSchema = z.object({ email: z.string().email() });
@@ -25,12 +26,32 @@ export async function POST(req: Request) {
     await createPasswordResetToken({ userId: u.id, tokenHash, expiresAt });
 
     // TODO: Send email with reset link. For now, log link to console.
-    const urlBase = process.env.NEXTAUTH_URL || process.env.VERCEL_URL || '';
-    const origin = typeof urlBase === 'string' && urlBase.startsWith('http')
-      ? urlBase
-      : `https://${urlBase}`;
+    const origin = new URL(req.url).origin;
     const resetUrl = `${origin}/reset?token=${rawToken}&user=${u.id}`;
-    console.log('[Password Reset] URL:', resetUrl);
+
+    // Send email via Resend
+    const resendKey = process.env.RESEND_API_KEY;
+    const from = process.env.RESEND_FROM || 'onboarding@resend.dev';
+    if (resendKey) {
+      const resend = new Resend(resendKey);
+      try {
+        await resend.emails.send({
+          from,
+          to: email,
+          subject: 'Reset your Opulent OS password',
+          html: `
+            <p>We received a request to reset your password.</p>
+            <p><a href="${resetUrl}">Click here to reset your password</a></p>
+            <p>This link will expire in 1 hour. If you didn\'t request this, you can ignore this email.</p>
+          `,
+          text: `Reset your password: ${resetUrl}\nThis link expires in 1 hour.`,
+        });
+      } catch (e) {
+        console.error('Resend email send failed', e);
+      }
+    } else {
+      console.warn('RESEND_API_KEY not set; password reset URL:', resetUrl);
+    }
 
     return NextResponse.json({ ok: true });
   } catch (e) {
