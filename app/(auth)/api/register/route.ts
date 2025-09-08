@@ -5,7 +5,8 @@ import { getUserByEmail, createLocalUser } from '@/lib/db/queries';
 const RegisterSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8).max(128),
-  name: z.string().min(1).max(64).optional(),
+  // Allow empty string or omitted name; normalize later
+  name: z.string().max(64).optional().or(z.literal('')),
 });
 
 export async function POST(req: Request) {
@@ -19,7 +20,10 @@ export async function POST(req: Request) {
       );
     }
     const email = parsed.data.email.trim().toLowerCase();
-    const name = parsed.data.name?.trim() || null;
+    const rawName = parsed.data.name;
+    const nameNorm =
+      typeof rawName === 'string' ? rawName.trim() : undefined;
+    const name = nameNorm && nameNorm.length > 0 ? nameNorm : null;
     const password = parsed.data.password;
 
     const existing = await getUserByEmail(email);

@@ -101,7 +101,9 @@ export default async function RootLayout({
           <Toaster position="top-center" />
           <TRPCReactProvider>{children}</TRPCReactProvider>
         </ThemeProvider>
-        <Analytics />
+        {process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true' ? (
+          <Analytics />
+        ) : null}
       </body>
     </html>
   );

@@ -68,8 +68,12 @@ function startFreezeDetector({
   });
 }
 
-if (typeof window !== 'undefined') {
-  startFreezeDetector({ thresholdMs: 80 });
+if (
+  typeof window !== 'undefined' &&
+  (process.env.NEXT_PUBLIC_ENABLE_FREEZE_MONITOR === 'true' ||
+    process.env.NODE_ENV !== 'production')
+) {
+  startFreezeDetector({ thresholdMs: 120 });
 }
 
 // Helper types to safely derive the message part and part.type types from UI_MESSAGE

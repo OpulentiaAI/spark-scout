@@ -32,6 +32,7 @@ export function EmailPasswordLogin() {
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        autoComplete="email"
         required
       />
       <Input
@@ -40,6 +41,7 @@ export function EmailPasswordLogin() {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         minLength={8}
+        autoComplete="current-password"
         required
       />
       {error && <div className="text-sm text-red-500">{error}</div>}
@@ -49,4 +51,3 @@ export function EmailPasswordLogin() {
     </form>
   );
 }
-
