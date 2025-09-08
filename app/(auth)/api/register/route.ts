@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUserByEmail, createLocalUser } from '@/lib/db/queries';
-import { db } from '@/lib/db/client';
-import { sql } from 'drizzle-orm';
 
 const RegisterSchema = z.object({
   email: z.string().email(),
@@ -27,15 +25,6 @@ export async function POST(req: Request) {
       typeof rawName === 'string' ? rawName.trim() : undefined;
     const name = nameNorm && nameNorm.length > 0 ? nameNorm : null;
     const password = parsed.data.password;
-
-    // Best-effort ensure required columns exist (for legacy DBs)
-    try {
-      await db.execute(sql`ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "createdAt" timestamp DEFAULT now() NOT NULL`);
-      await db.execute(sql`ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "passwordHash" varchar(256)`);
-    } catch (e) {
-      // ignore, migration may not be permitted by role
-      console.warn('Column ensure failed (safe to ignore if already exists)');
-    }
 
     const existing = await getUserByEmail(email);
     if (existing.length > 0 && existing[0]?.passwordHash) {
@@ -62,12 +51,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   } catch (e: any) {
     console.error('Register error', e);
-    const message = typeof e?.message === 'string' ? e.message : 'unknown';
-    const code = typeof e?.code === 'string' ? e.code : undefined;
-    return NextResponse.json(
-      { error: 'Server error', message, code },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
 
