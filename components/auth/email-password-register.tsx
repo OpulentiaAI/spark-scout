@@ -18,7 +18,7 @@ export function EmailPasswordRegister() {
     setError(null);
     setSuccess(false);
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, name }),
