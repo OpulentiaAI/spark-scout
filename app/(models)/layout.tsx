@@ -1,5 +1,6 @@
 import { ModelsHeader } from './models-header';
-import { auth } from '../(auth)/auth';
+// Lazy-load auth to avoid build-time provider initialization
+export const dynamic = 'force-dynamic';
 import { SessionProvider } from 'next-auth/react';
 import type { Metadata } from 'next';
 import { modelsData, providers } from '@/lib/models/models.generated';
@@ -48,6 +49,7 @@ export default async function ModelsLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { auth } = await import('../(auth)/auth');
   const session = await auth();
   return (
     <SessionProvider session={session}>

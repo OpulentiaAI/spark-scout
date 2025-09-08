@@ -6,7 +6,8 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { auth } from "@/app/(auth)/auth";
+// Lazy-load auth inside context factory to avoid build-time provider initialization
+export const dynamic = 'force-dynamic';
 
 import { TRPCError, initTRPC } from "@trpc/server";
 import superjson from "superjson";
@@ -26,6 +27,7 @@ import { cache } from 'react';
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = cache(async () => {
+  const { auth } = await import("@/app/(auth)/auth");
   const session = await auth();
   return {
     user: session?.user,
