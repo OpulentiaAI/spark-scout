@@ -13,7 +13,7 @@ export type AcademicSearchResponse = {
   error?: string;
 };
 
-const exa = new Exa(process.env.EXA_API_KEY as string);
+
 
 export async function academicSearchStep({
   query,
@@ -29,6 +29,11 @@ export async function academicSearchStep({
   annotate?: boolean;
 }): Promise<AcademicSearchResponse> {
   try {
+    const apiKey = process.env.EXA_API_KEY;
+    if (!apiKey) {
+      return { results: [], error: 'Exa search is not configured. Set EXA_API_KEY to enable academic search.' };
+    }
+    const exa = new Exa(apiKey);
     // Send running annotation
     if (annotate) {
       dataStream.write({

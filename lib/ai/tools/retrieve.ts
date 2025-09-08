@@ -2,10 +2,6 @@ import { tool } from 'ai';
 import { z } from 'zod';
 import FirecrawlApp from '@mendable/firecrawl-js';
 
-const app = new FirecrawlApp({
-  apiKey: process.env.FIRECRAWL_API_KEY,
-});
-
 export const retrieve = tool({
   description: `Fetch structured information from a single URL via Firecrawl.
 
@@ -19,6 +15,11 @@ Avoid:
   }),
   execute: async ({ url }: { url: string }) => {
     try {
+      const apiKey = process.env.FIRECRAWL_API_KEY;
+      if (!apiKey) {
+        return { error: 'Firecrawl is not configured. Set FIRECRAWL_API_KEY to enable retrieval.' };
+      }
+      const app = new FirecrawlApp({ apiKey });
       const content = await app.scrapeUrl(url);
       if (!content.success || !content.metadata) {
         return {
