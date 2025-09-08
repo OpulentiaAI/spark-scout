@@ -55,6 +55,11 @@ export default function LoginPage() {
             <EmailPasswordLogin />
             <div className="text-center text-sm text-muted-foreground">or</div>
             <SocialAuthProviders />
+            <div className="text-center text-xs text-muted-foreground">
+              <Link href="/forgot" className="underline underline-offset-4">
+                Forgot password?
+              </Link>
+            </div>
           </div>
           <p className="px-8 text-center text-sm text-muted-foreground">
             <Link

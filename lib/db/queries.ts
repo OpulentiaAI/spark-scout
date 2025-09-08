@@ -16,6 +16,7 @@ import {
 import type { ArtifactKind } from '../artifacts/artifact-kind';
 import type { Attachment } from '@/lib/ai/types';
 import { db } from './client';
+import { passwordReset } from './schema';
 
 export async function getUserByEmail(email: string): Promise<Array<User>> {
   try {
@@ -67,6 +68,66 @@ export async function createLocalUser({
     });
   } catch (error) {
     console.error('Failed to create local user in database');
+    throw error;
+  }
+}
+
+export async function createPasswordResetToken({
+  userId,
+  tokenHash,
+  expiresAt,
+}: {
+  userId: string;
+  tokenHash: string;
+  expiresAt: Date;
+}) {
+  try {
+    return await db.insert(passwordReset).values({ userId, tokenHash, expiresAt });
+  } catch (error) {
+    console.error('Failed to create password reset token', error);
+    throw error;
+  }
+}
+
+export async function getPasswordResetByHash({
+  userId,
+  tokenHash,
+}: {
+  userId: string;
+  tokenHash: string;
+}) {
+  try {
+    const res = await db
+      .select()
+      .from(passwordReset)
+      .where(and(eq(passwordReset.userId, userId), eq(passwordReset.tokenHash, tokenHash)));
+    return res[0] ?? null;
+  } catch (error) {
+    console.error('Failed to get password reset token', error);
+    throw error;
+  }
+}
+
+export async function deletePasswordResetById({ id }: { id: string }) {
+  try {
+    return await db.delete(passwordReset).where(eq(passwordReset.id, id));
+  } catch (error) {
+    console.error('Failed to delete password reset token', error);
+    throw error;
+  }
+}
+
+export async function setUserPasswordHash({
+  userId,
+  passwordHash,
+}: {
+  userId: string;
+  passwordHash: string;
+}) {
+  try {
+    return await db.update(user).set({ passwordHash }).where(eq(user.id, userId));
+  } catch (error) {
+    console.error('Failed to set user password hash', error);
     throw error;
   }
 }
