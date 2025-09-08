@@ -14,7 +14,7 @@ export function WebSourceBadge({ result }: { result: SearchResultItem }) {
     <Tooltip>
       <TooltipTrigger asChild>
         <Link
-          // @ts-expect-error - result.url is a valid URL
+
           href={result.url}
           target="_blank"
           rel="noopener noreferrer"
