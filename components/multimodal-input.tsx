@@ -280,12 +280,17 @@ function PureMultimodalInput({
     // Kick off Temporal chat workflow on first message of a new conversation (lazy initialization)
     setTimeout(async () => {
       try {
-        if (
-          !currentWorkflowId &&
-          storeApi.getState().messages.length === 0
-        ) {
-          const [provider, model] = (selectedModelId as string).split('/', 2);
-          await startChat?.({ model, provider } as any, []);
+        if (!currentWorkflowId && storeApi.getState().messages.length === 0) {
+          const fallbackModelId =
+            (typeof selectedModelId === 'string' && selectedModelId.includes('/'))
+              ? (selectedModelId as string)
+              : DEFAULT_CHAT_IMAGE_COMPATIBLE_MODEL;
+          const parts = fallbackModelId.split('/', 2);
+          const provider = parts[0];
+          const model = parts[1];
+          if (provider && model) {
+            await startChat?.({ model, provider } as any, []);
+          }
         }
         // Signal addMessage to Temporal workflow as best-effort (if workflow exists)
         if (currentWorkflowId) {
