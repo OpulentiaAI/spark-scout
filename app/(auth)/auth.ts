@@ -91,6 +91,10 @@ export const {
   providers: configuredProviders,
   callbacks: {
     async signIn({ user, account, profile }) {
+      // Allow Credentials provider without requiring OAuth-specific objects
+      if (account?.provider === 'credentials') {
+        return true;
+      }
       if (!account || !profile || !user?.email) {
         console.log(
           'Auth provider details missing (account, profile, or user email).',
