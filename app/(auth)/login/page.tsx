@@ -11,12 +11,16 @@ export const metadata: Metadata = {
   description: 'Login to your account',
 };
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams?: { error?: string };
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const errorKey = typeof searchParams?.error === 'string' ? searchParams.error : undefined;
+  const params = (await searchParams) ?? {};
+  const errorParam = params.error;
+  const errorKey = Array.isArray(errorParam)
+    ? (errorParam[0] as string | undefined)
+    : (typeof errorParam === 'string' ? errorParam : undefined);
   const errorMessage = errorKey
     ? (
         errorKey === 'Configuration' || errorKey === 'MissingSecret'
