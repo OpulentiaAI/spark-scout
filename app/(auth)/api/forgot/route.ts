@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUserByEmail, createPasswordResetToken } from '@/lib/db/queries';
 import { Resend } from 'resend';
+import { db } from '@/lib/db/client';
+import { sql } from 'drizzle-orm';
 import crypto from 'node:crypto';
 
 const ForgotSchema = z.object({ email: z.string().email() });
@@ -18,6 +20,21 @@ export async function POST(req: Request) {
     const u = users?.[0];
     // Always respond success to avoid user enumeration
     if (!u) return NextResponse.json({ ok: true });
+
+    // Ensure PasswordReset table exists for legacy DBs
+    try {
+      await db.execute(sql`CREATE TABLE IF NOT EXISTS "PasswordReset" (
+        "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+        "userId" uuid NOT NULL REFERENCES "User"("id") ON DELETE CASCADE,
+        "tokenHash" varchar(128) NOT NULL,
+        "expiresAt" timestamp NOT NULL,
+        "createdAt" timestamp NOT NULL DEFAULT now()
+      )`);
+      await db.execute(sql`CREATE INDEX IF NOT EXISTS password_reset_user_idx ON "PasswordReset" ("userId")`);
+      await db.execute(sql`CREATE INDEX IF NOT EXISTS password_reset_expires_idx ON "PasswordReset" ("expiresAt")`);
+    } catch (e) {
+      console.warn('PasswordReset ensure failed');
+    }
 
     const rawToken = crypto.randomBytes(32).toString('hex');
     const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
