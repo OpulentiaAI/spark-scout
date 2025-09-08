@@ -21,7 +21,10 @@ export async function createChatWorker() {
 }
 
 // Allow running directly: bun run tsx temporal/workers/chat-worker.ts
-if (process.argv[1]?.includes('chat-worker.ts')) {
+if (
+  process.argv[1]?.includes('chat-worker') ||
+  process.argv[1]?.endsWith('chat-worker.ts')
+) {
   (async () => {
     const worker = await createChatWorker();
     console.log('Chat Worker starting...');
