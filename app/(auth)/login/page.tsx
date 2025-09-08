@@ -31,14 +31,17 @@ export default function LoginPage() {
 
       {/* Left panel logo (desktop) */}
       <div className="relative hidden h-full lg:block">
-        <Image
-          src="/images/opulent-logo_dark.png"
-          alt="Opulent logo"
-          fill
-          priority
-          className="object-contain p-12 bg-muted"
-          sizes="(min-width: 1024px) 50vw, 100vw"
-        />
+        <picture>
+          <source srcSet="/images/opulent-logo_dark.webp" type="image/webp" />
+          <Image
+            src="/images/opulent-logo_dark_512.png"
+            alt="Opulent logo"
+            fill
+            priority
+            className="object-contain p-12 bg-muted"
+            sizes="(min-width: 1024px) 50vw, 100vw"
+          />
+        </picture>
       </div>
 
       {/* Right panel content */}
