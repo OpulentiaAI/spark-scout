@@ -20,7 +20,20 @@ import { passwordReset } from './schema';
 
 export async function getUserByEmail(email: string): Promise<Array<User>> {
   try {
-    return await db.select().from(user).where(eq(user.email, email));
+    // Select only columns known to exist in older DBs to avoid errors on missing createdAt
+    const rows = await db
+      .select({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        image: user.image,
+        credits: user.credits,
+        reservedCredits: user.reservedCredits,
+        passwordHash: user.passwordHash,
+      })
+      .from(user)
+      .where(eq(user.email, email));
+    return rows as any;
   } catch (error) {
     console.error('Failed to get user from database');
     throw error;
