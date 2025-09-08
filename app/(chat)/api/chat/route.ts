@@ -665,9 +665,24 @@ export async function POST(request: NextRequest) {
           await streamContext.resumableStream(streamId, () =>
             stream.pipeThrough(new JsonToSseTransformStream()),
           ),
+          {
+            headers: {
+              'Content-Type': 'text/event-stream; charset=utf-8',
+              'Cache-Control': 'no-cache, no-transform',
+              Connection: 'keep-alive',
+              'X-Accel-Buffering': 'no',
+            },
+          },
         );
       } else {
-        return new Response(stream.pipeThrough(new JsonToSseTransformStream()));
+        return new Response(stream.pipeThrough(new JsonToSseTransformStream()), {
+          headers: {
+            'Content-Type': 'text/event-stream; charset=utf-8',
+            'Cache-Control': 'no-cache, no-transform',
+            Connection: 'keep-alive',
+            'X-Accel-Buffering': 'no',
+          },
+        });
       }
     } catch (error) {
       clearTimeout(timeoutId);

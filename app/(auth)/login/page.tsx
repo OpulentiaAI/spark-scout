@@ -11,7 +11,29 @@ export const metadata: Metadata = {
   description: 'Login to your account',
 };
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = (await searchParams) ?? {};
+  const errorParam = params.error;
+  const errorKey = Array.isArray(errorParam)
+    ? (errorParam[0] as string | undefined)
+    : (typeof errorParam === 'string' ? errorParam : undefined);
+  const errorMessage = errorKey
+    ? (
+        errorKey === 'Configuration' || errorKey === 'MissingSecret'
+          ? 'Server misconfigured. Set AUTH_SECRET and provider credentials.'
+          : errorKey === 'OAuthCallback' || errorKey === 'OAuthSignin' || errorKey === 'Callback'
+            ? 'OAuth error. Check Google redirect URI and client ID/secret.'
+            : errorKey === 'AccessDenied'
+              ? 'Access denied. Your account may not be allowed to sign in.'
+              : errorKey === 'OAuthAccountNotLinked' || errorKey === 'AccountNotLinked'
+                ? 'Email already linked to a different provider. Use the originally linked provider.'
+                : `Unexpected error: ${errorKey}`
+      )
+    : undefined;
   return (
     <div className="container mx-auto flex h-dvh w-screen flex-col items-center justify-center">
       <Link
@@ -37,6 +59,11 @@ export default function LoginPage() {
             Sign in using your Google account
           </p>
         </div>
+        {errorMessage ? (
+          <div className="w-full rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-500 dark:bg-red-950/50 dark:text-red-300">
+            {errorMessage}
+          </div>
+        ) : null}
         <SocialAuthProviders />
         <p className="px-8 text-center text-sm text-muted-foreground">
           <Link
