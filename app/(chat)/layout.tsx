@@ -1,5 +1,6 @@
 import { ChatProviders } from './chat-providers';
-import { auth } from '../(auth)/auth';
+// Lazy-load auth to avoid build-time provider initialization
+export const dynamic = 'force-dynamic';
 import { cookies } from 'next/headers';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { DefaultModelProvider } from '@/providers/default-model-provider';
@@ -15,6 +16,7 @@ export default async function ChatLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { auth } = await import('../(auth)/auth');
   const [session, cookieStore] = await Promise.all([auth(), cookies()]);
   const isCollapsed = cookieStore.get('sidebar:state')?.value !== 'true';
 

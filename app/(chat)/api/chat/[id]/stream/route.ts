@@ -1,4 +1,6 @@
-import { auth } from '@/app/(auth)/auth';
+// Lazy import auth at runtime to avoid build-time provider initialization
+// which can fail when provider secrets are not present during Vercel build
+export const dynamic = 'force-dynamic';
 import { getChatById, getAllMessagesByChatId } from '@/lib/db/queries';
 import type { Chat } from '@/lib/db/schema';
 import { ChatSDKError } from '@/lib/ai/errors';
@@ -24,6 +26,7 @@ export async function GET(
     return new ChatSDKError('bad_request:api').toResponse();
   }
 
+  const { auth } = await import('@/app/(auth)/auth');
   const session = await auth();
   const userId = session?.user?.id || null;
   const isAuthenticated = userId !== null;

@@ -85,11 +85,11 @@ export async function webSearchStep({
         ...providerOptions,
       });
 
-      results = response.results.map((r) => ({
+      results = (response.results as Array<{ title: string; url: string; content: string }>).map(({ title, url, content }) => ({
         source: 'web',
-        title: r.title,
-        url: r.url,
-        content: r.content,
+        title,
+        url,
+        content,
       }));
     } else if (providerOptions.provider === 'firecrawl') {
       const client = getFirecrawlClient();

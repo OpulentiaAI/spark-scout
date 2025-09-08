@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
-import { auth } from '@/app/(auth)/auth';
+// Lazy-load auth in handler to avoid build-time provider initialization
+export const dynamic = 'force-dynamic';
 import { uploadFile, extractFilenameFromUrl } from '@/lib/blob';
 
 // Use Blob instead of File since File is not available in Node.js environment
@@ -22,6 +23,7 @@ const FileSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const { auth } = await import('@/app/(auth)/auth');
   const session = await auth();
 
   if (!session) {

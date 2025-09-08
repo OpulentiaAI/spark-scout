@@ -6,7 +6,8 @@ import {
   stepCountIs,
 } from 'ai';
 import { replaceFilePartUrlByBinaryDataInMessages } from '@/lib/utils/download-assets';
-import { auth } from '@/app/(auth)/auth';
+// Lazy-load auth in handlers to avoid build-time provider initialization
+// which can fail when provider secrets are not present during Vercel build
 import { systemPrompt } from '@/lib/ai/prompts';
 import {
   getChatById,
@@ -17,7 +18,7 @@ import {
   getMessageById,
 } from '@/lib/db/queries';
 import { generateUUID } from '@/lib/utils';
-import { generateTitleFromUserMessage } from '../../actions';
+
 import { getTools } from '@/lib/ai/tools/tools';
 import { toolsDefinitions, allTools } from '@/lib/ai/tools/tools-definitions';
 import type { ToolName, ChatMessage } from '@/lib/ai/types';
@@ -105,6 +106,8 @@ export function getRedisPublisher() {
   return redisPublisher;
 }
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   const log = createModuleLogger('api:chat');
   try {
@@ -133,6 +136,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    const { auth } = await import('@/app/(auth)/auth');
     const session = await auth();
 
     const userId = session?.user?.id || null;
@@ -238,6 +242,7 @@ export async function POST(request: NextRequest) {
       }
 
       if (!chat) {
+        const { generateTitleFromUserMessage } = await import('../../actions');
         const title = await generateTitleFromUserMessage({
           message: userMessage,
         });

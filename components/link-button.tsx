@@ -24,7 +24,7 @@ function LinkButton({
 }) {
   return (
     <Link
-      // @ts-expect-error - href is a valid URL
+
       href={href}
       className={cn(
         buttonVariants({ variant, size, className }),
