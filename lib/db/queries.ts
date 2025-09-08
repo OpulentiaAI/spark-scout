@@ -47,6 +47,30 @@ export async function createUser({
   }
 }
 
+export async function createLocalUser({
+  email,
+  name,
+  passwordHash,
+  image,
+}: {
+  email: string;
+  name: string | null;
+  passwordHash: string;
+  image?: string | null;
+}) {
+  try {
+    return await db.insert(user).values({
+      email,
+      name,
+      passwordHash,
+      image: image ?? null,
+    });
+  } catch (error) {
+    console.error('Failed to create local user in database');
+    throw error;
+  }
+}
+
 export async function saveChat({
   id,
   userId,

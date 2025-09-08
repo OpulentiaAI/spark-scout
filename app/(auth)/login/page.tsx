@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
 import { SocialAuthProviders } from '@/components/social-auth-providers';
+import { EmailPasswordLogin } from '@/components/auth/email-password-login';
 import { ChevronLeft } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -33,11 +34,13 @@ export default function LoginPage() {
           <h1 className="text-2xl font-semibold tracking-tight">
             Welcome back
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Sign in using your Google account
-          </p>
+          <p className="text-sm text-muted-foreground">Sign in to your account</p>
         </div>
-        <SocialAuthProviders />
+        <div className="w-full space-y-4">
+          <EmailPasswordLogin />
+          <div className="text-center text-sm text-muted-foreground">or</div>
+          <SocialAuthProviders />
+        </div>
         <p className="px-8 text-center text-sm text-muted-foreground">
           <Link
             href="/register"

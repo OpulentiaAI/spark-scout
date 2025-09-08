@@ -1,0 +1,54 @@
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import { getUserByEmail, createLocalUser } from '@/lib/db/queries';
+
+const RegisterSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8).max(128),
+  name: z.string().min(1).max(64).optional(),
+});
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const parsed = RegisterSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Invalid payload', details: parsed.error.flatten() },
+        { status: 400 },
+      );
+    }
+    const email = parsed.data.email.trim().toLowerCase();
+    const name = parsed.data.name?.trim() || null;
+    const password = parsed.data.password;
+
+    const existing = await getUserByEmail(email);
+    if (existing.length > 0 && existing[0]?.passwordHash) {
+      return NextResponse.json(
+        { error: 'Email already registered' },
+        { status: 409 },
+      );
+    }
+
+    const { hash } = await import('bcrypt-ts');
+    const passwordHash = await hash(password, 10);
+
+    if (existing.length > 0 && !existing[0]?.passwordHash) {
+      // User exists (from OAuth) — create a new row with password hash is not desired.
+      // Instead, we can update by inserting with same email; but schema has unique constraints? Not shown.
+      // Safer: create user only if none exists with email.
+      return NextResponse.json(
+        { error: 'Email already in use via social login' },
+        { status: 409 },
+      );
+    }
+
+    await createLocalUser({ email, name, passwordHash });
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    console.error('Register error', e);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+  }
+}
+
+export const runtime = 'nodejs';

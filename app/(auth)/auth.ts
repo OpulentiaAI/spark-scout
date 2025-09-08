@@ -1,6 +1,7 @@
 import NextAuth, { type User, type Session } from 'next-auth';
 import Google from 'next-auth/providers/google';
 import GitHub from 'next-auth/providers/github';
+import Credentials from 'next-auth/providers/credentials';
 
 import { getUserByEmail, createUser } from '@/lib/db/queries';
 
@@ -37,6 +38,39 @@ if (process.env.AUTH_GITHUB_ID && process.env.AUTH_GITHUB_SECRET) {
     'GitHub auth not configured: set AUTH_GITHUB_ID and AUTH_GITHUB_SECRET',
   );
 }
+
+// Always enable credentials provider for email/password sign-in
+configuredProviders.push(
+  Credentials({
+    name: 'Email and Password',
+    credentials: {
+      email: { label: 'Email', type: 'email' },
+      password: { label: 'Password', type: 'password' },
+    },
+    authorize: async (creds) => {
+      try {
+        const email = creds?.email?.toString().trim().toLowerCase();
+        const password = creds?.password?.toString();
+        if (!email || !password) return null;
+        const users = await getUserByEmail(email);
+        const u = users?.[0];
+        if (!u || !u.passwordHash) return null;
+        const { compare } = await import('bcrypt-ts');
+        const ok = await compare(password, u.passwordHash);
+        if (!ok) return null;
+        return {
+          id: u.id,
+          email: u.email,
+          name: u.name ?? null,
+          image: u.image ?? null,
+        } as any;
+      } catch (e) {
+        console.error('Credentials authorize failed', e);
+        return null;
+      }
+    },
+  }),
+);
 
 export const {
   handlers: { GET, POST },

@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
 import { SocialAuthProviders } from '@/components/social-auth-providers';
+import { EmailPasswordRegister } from '@/components/auth/email-password-register';
 
 export const metadata: Metadata = {
   title: 'Create an account',
@@ -31,11 +32,13 @@ export default function RegisterPage() {
             <h1 className="text-2xl font-semibold tracking-tight">
               Create an account
             </h1>
-            <p className="text-sm text-muted-foreground">
-              Sign up using your Google account
-            </p>
+            <p className="text-sm text-muted-foreground">Create an account</p>
           </div>
-          <SocialAuthProviders />
+          <div className="w-full space-y-4">
+            <EmailPasswordRegister />
+            <div className="text-center text-sm text-muted-foreground">or</div>
+            <SocialAuthProviders />
+          </div>
           {/* <p className="px-8 text-center text-sm text-muted-foreground">
             By clicking continue, you agree to our{' '}
             <Link
