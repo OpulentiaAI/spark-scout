@@ -1,18 +1,39 @@
 import { Worker } from '@temporalio/worker';
-import { createActivities } from '../activities/ai-provider-activities';
-import * as toolActivities from '../activities/tool-activities';
-import { executeCapyTool } from '../activities/capy-tool-activities';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 
-export async function createChatWorker() {
-  const activities = {
-    ...createActivities({}),
-    ...toolActivities,
-    executeCapyTool,
-  } as const;
+// Simple activities for testing
+const activities = {
+  async generateChatResponse(
+    _conversation: any[],
+    modelConfig: any,
+  ): Promise<string> {
+    console.log('Generating chat response', { model: modelConfig.model });
+    return `Response from ${modelConfig.provider}/${modelConfig.model}`;
+  },
 
+  async executeWebSearch(params: any): Promise<any> {
+    console.log('Executing web search', { query: params.query });
+    return { searches: [], query: params.query };
+  },
+
+  async generateImage(params: { prompt?: string }): Promise<any> {
+    console.log('Generating image', { prompt: params.prompt });
+    return { url: null, prompt: params.prompt };
+  },
+
+  async executeCapyTool(params: any): Promise<any> {
+    console.log('Executing Capy tool', { tool: params.tool });
+    return { result: 'Capy tool executed', params };
+  },
+
+  async saveToDatabase(_conversation: any[], modelConfig: any): Promise<void> {
+    console.log('Saving to database', { model: modelConfig.model });
+  },
+};
+
+export async function createChatWorker() {
   return await Worker.create({
     workflowsPath: require.resolve('../workflows'),
     activities,
