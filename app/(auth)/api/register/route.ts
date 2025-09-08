@@ -49,9 +49,14 @@ export async function POST(req: Request) {
 
     await createLocalUser({ email, name, passwordHash });
     return NextResponse.json({ ok: true });
-  } catch (e) {
+  } catch (e: any) {
     console.error('Register error', e);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    const message = typeof e?.message === 'string' ? e.message : 'unknown';
+    const code = typeof e?.code === 'string' ? e.code : undefined;
+    return NextResponse.json(
+      { error: 'Server error', message, code },
+      { status: 500 },
+    );
   }
 }
 
