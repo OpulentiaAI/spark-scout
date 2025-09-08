@@ -1,22 +1,33 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { TemporalClientManager } from '@/temporal/client/temporal-client';
 import { taskQueues } from '@/temporal/config/temporal-config';
-import type { ChatMessage, ModelConfig, ToolInvocation } from '@/temporal/types/workflow-types';
+import type {
+  ChatMessage,
+  ModelConfig,
+  ToolInvocation,
+} from '@/temporal/types/workflow-types';
 import { chatWorkflow } from '@/temporal/workflows';
 
 export async function POST(req: NextRequest) {
   try {
-    const { initialMessages, modelConfig, toolInvocations, workflowId } = (await req.json()) as {
-      initialMessages?: ChatMessage[];
-      modelConfig: ModelConfig;
-      toolInvocations?: ToolInvocation[];
-      workflowId?: string;
-    };
+    const { initialMessages, modelConfig, toolInvocations, workflowId } =
+      (await req.json()) as {
+        initialMessages?: ChatMessage[];
+        modelConfig: ModelConfig;
+        toolInvocations?: ToolInvocation[];
+        workflowId?: string;
+      };
 
     if (!modelConfig?.model || !modelConfig?.provider) {
-      return NextResponse.json({ error: 'Missing modelConfig' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Missing modelConfig' },
+        { status: 400 },
+      );
     }
 
+    console.log('TEMPORAL_ADDRESS:', process.env.TEMPORAL_ADDRESS);
+    console.log('TEMPORAL_NAMESPACE:', process.env.TEMPORAL_NAMESPACE);
+    console.log('TEMPORAL_TLS:', process.env.TEMPORAL_TLS);
     const client = await TemporalClientManager.getInstance();
 
     const handle = await client.workflow.start(chatWorkflow, {
@@ -28,6 +39,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ workflowId: handle.workflowId });
   } catch (err) {
     console.error('Temporal start-chat error', err);
-    return NextResponse.json({ error: 'Temporal not available' }, { status: 501 });
+    return NextResponse.json(
+      { error: 'Temporal not available' },
+      { status: 501 },
+    );
   }
 }
