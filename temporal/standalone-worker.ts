@@ -83,15 +83,30 @@ const activities = {
 };
 
 async function createChatWorker() {
+  const address = process.env.TEMPORAL_ADDRESS || 'localhost:7233';
+  const namespace = process.env.TEMPORAL_NAMESPACE || 'default';
+  const tlsEnv = (process.env.TEMPORAL_TLS || '').toLowerCase();
+  const useTLS = tlsEnv === 'true' || tlsEnv === '1';
+  const apiKey = process.env.TEMPORAL_API_KEY;
+
+  console.log('[Temporal Worker] Connecting', {
+    address,
+    namespace,
+    tls: useTLS,
+    apiKeyConfigured: Boolean(apiKey),
+    taskQueue: process.env.TEMPORAL_TASK_QUEUE || 'chat-processing',
+  });
+
   // Create connection to Temporal server
   const connection = await NativeConnection.connect({
-    address: process.env.TEMPORAL_ADDRESS || 'localhost:7233',
-    tls: process.env.TEMPORAL_TLS === 'true' ? {} : false,
+    address,
+    tls: useTLS ? {} : undefined,
+    apiKey,
   });
 
   return await Worker.create({
     connection,
-    namespace: process.env.TEMPORAL_NAMESPACE || 'default',
+    namespace,
     workflowsPath: require.resolve('./workflows'),
     activities,
     taskQueue: process.env.TEMPORAL_TASK_QUEUE || 'chat-processing',
@@ -107,6 +122,9 @@ if (process.argv[1]?.includes('standalone-worker.ts')) {
       await worker.run();
     } catch (err) {
       console.error('Worker failed to start:', err);
+      console.error(
+        '[Temporal Worker] Ensure TEMPORAL_ADDRESS is a resolvable host:port, TEMPORAL_NAMESPACE is correct, and TEMPORAL_TLS/API key match your server. For Temporalite on Railway, use the TCP endpoint host:port; do not use a Docker service name like "temporalite:7233".',
+      );
       process.exit(1);
     }
   })();

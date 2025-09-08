@@ -47,6 +47,13 @@ export const {
   ...authConfig,
   // Require secret from environment (set AUTH_SECRET or NEXTAUTH_SECRET)
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+  // Make host resolution explicit for Vercel/custom domains
+  trustHost:
+    (process.env.AUTH_TRUST_HOST || '').toLowerCase() === 'true' ||
+    Boolean(process.env.VERCEL),
+  // Optionally proxy OAuth callbacks through a stable domain
+  // e.g. https://chat.opulentia.ai
+  redirectProxyUrl: process.env.AUTH_REDIRECT_PROXY_URL,
   providers: configuredProviders,
   callbacks: {
     async signIn({ user, account, profile }) {
