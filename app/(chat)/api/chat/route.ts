@@ -18,7 +18,7 @@ import {
   getMessageById,
 } from '@/lib/db/queries';
 import { generateUUID } from '@/lib/utils';
-import { generateTitleFromUserMessage } from '../../actions';
+
 import { getTools } from '@/lib/ai/tools/tools';
 import { toolsDefinitions, allTools } from '@/lib/ai/tools/tools-definitions';
 import type { ToolName, ChatMessage } from '@/lib/ai/types';
@@ -105,6 +105,8 @@ export function getRedisSubscriber() {
 export function getRedisPublisher() {
   return redisPublisher;
 }
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   const log = createModuleLogger('api:chat');
@@ -240,6 +242,7 @@ export async function POST(request: NextRequest) {
       }
 
       if (!chat) {
+        const { generateTitleFromUserMessage } = await import('../../actions');
         const title = await generateTitleFromUserMessage({
           message: userMessage,
         });
