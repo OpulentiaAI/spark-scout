@@ -29,6 +29,7 @@ export async function getUserByEmail(email: string): Promise<Array<User>> {
         image: user.image,
         credits: user.credits,
         reservedCredits: user.reservedCredits,
+        passwordHash: user.passwordHash,
       })
       .from(user)
       .where(eq(user.email, email));
