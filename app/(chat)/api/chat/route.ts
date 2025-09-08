@@ -6,7 +6,8 @@ import {
   stepCountIs,
 } from 'ai';
 import { replaceFilePartUrlByBinaryDataInMessages } from '@/lib/utils/download-assets';
-import { auth } from '@/app/(auth)/auth';
+// Lazy-load auth in handlers to avoid build-time provider initialization
+// which can fail when provider secrets are not present during Vercel build
 import { systemPrompt } from '@/lib/ai/prompts';
 import {
   getChatById,
@@ -133,6 +134,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    const { auth } = await import('@/app/(auth)/auth');
     const session = await auth();
 
     const userId = session?.user?.id || null;
