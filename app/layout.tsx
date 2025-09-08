@@ -13,6 +13,16 @@ export const metadata: Metadata = {
   title: 'Opulent OS - The new standard in operating systems',
   description:
     'Multi-provider AI Chat - access Claude, ChatGPT, Gemini, and Grok with advanced features, open-source and production-ready.',
+  icons: {
+    icon: [
+      { url: '/images/opulent-logo_dark.png' },
+      { url: '/images/opulent-logo_dark_512.png', sizes: '512x512' },
+    ],
+    apple: [
+      { url: '/images/apple-touch-icon.png' },
+    ],
+    shortcut: ['/images/opulent-logo_dark.png'],
+  },
   openGraph: {
     siteName: 'Opulent OS',
     url: 'https://sparka.ai',

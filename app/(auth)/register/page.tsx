@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Metadata } from 'next';
 
 import { cn } from '@/lib/utils';
@@ -23,7 +24,16 @@ export default function RegisterPage() {
       >
         Login
       </Link>
-      <div className="hidden h-full bg-muted lg:block" />
+      <div className="relative hidden h-full lg:block">
+        <Image
+          src="/images/opulent-logo_dark.png"
+          alt="Opulent logo"
+          fill
+          priority
+          className="object-contain p-12 bg-muted"
+          sizes="(min-width: 1024px) 50vw, 100vw"
+        />
+      </div>
       <div className="lg:p-8">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           <div className="flex flex-col space-y-2 text-center">
