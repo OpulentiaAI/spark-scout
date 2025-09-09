@@ -28,7 +28,10 @@ def main():
     try:
         # Navigate to the chat page
         print(f"Navigating to {os.getenv('NEXT_PUBLIC_BASE_URL')}")
-        instance.goto(os.getenv("NEXT_PUBLIC_BASE_URL"))
+        instance.computer(action="click_mouse", button="left", coordinates=[300, 50])
+        instance.computer(action="type_text", text=os.getenv("NEXT_PUBLIC_BASE_URL"))
+        instance.computer(action="press_key", keys=["Enter"])
+        time.sleep(6)
         
         # Wait for page to load
         time.sleep(5)
