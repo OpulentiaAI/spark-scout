@@ -37,7 +37,35 @@ def main():
         time.sleep(5)
         
         # Take a screenshot to verify we're on the right page
-        print("Taking screenshot of initial page...")
+        print("Taking screenshot of initial page...
+        print("Focusing chat input area...")
+        try:
+            # Scroll down to ensure input is visible
+            instance.computer(action="scroll", delta_y=1000)
+        except Exception:
+            pass
+        # Click near bottom center to focus input (coordinates may vary by VM)
+        instance.computer(action="click_mouse", button="left", coordinates=[800, 900])
+        time.sleep(1)
+
+        # Submit a simple prompt
+        PROMPT_TEXT = "Say PROMPT_OK and nothing else."
+        print("Typing prompt...", PROMPT_TEXT)
+        instance.computer(action="type_text", text=PROMPT_TEXT)
+        instance.computer(action="press_key", keys=["Enter"])
+        print("Prompt submitted. Waiting for response...")
+        time.sleep(15)
+
+        # Save a screenshot after prompt submission
+        print("Saving screenshot after prompt...")
+        shot = instance.screenshot()
+        try:
+            out = Path('.logs')/ 'scrapybara_prompt.png'
+            out.write_bytes(shot or b'')
+            print(f"Saved screenshot to {out}")
+        except Exception as e:
+            print("Failed saving screenshot:", e)
+")
         screenshot = instance.screenshot()
         if not screenshot:
             print("Failed to take screenshot - this might indicate an error")
