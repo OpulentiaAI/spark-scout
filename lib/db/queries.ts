@@ -78,6 +78,8 @@ export async function createLocalUser({
       name,
       passwordHash,
       image: image ?? null,
+      credits: 1000,
+      reservedCredits: 0,
     });
   } catch (error) {
     console.error('Failed to create local user in database');

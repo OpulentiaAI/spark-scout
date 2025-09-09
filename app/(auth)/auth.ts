@@ -4,6 +4,7 @@ import GitHub from 'next-auth/providers/github';
 import Credentials from 'next-auth/providers/credentials';
 
 import { getUserByEmail, createUser } from '@/lib/db/queries';
+import { ensureMinimumCredits } from '@/lib/repositories/credits';
 
 import { authConfig } from './auth.config';
 
@@ -93,6 +94,9 @@ export const {
     async signIn({ user, account, profile }) {
       // Allow Credentials provider without requiring OAuth-specific objects
       if (account?.provider === 'credentials') {
+        try {
+          if (user?.id) await ensureMinimumCredits({ userId: user.id as string, minCredits: 500 });
+        } catch {}
         return true;
       }
       if (!account || !profile || !user?.email) {
@@ -117,6 +121,10 @@ export const {
         } else {
           console.log(`User already exists: ${email}`);
         }
+        try {
+          const id = (existingUserArray[0]?.id as string | undefined) ?? (user?.id as string | undefined);
+          if (id) await ensureMinimumCredits({ userId: id, minCredits: 500 });
+        } catch {}
         return true;
       } catch (error) {
         console.error('Error during signIn DB operations:', error);
