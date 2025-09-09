@@ -27,7 +27,14 @@ import {
   type ResumableStreamContext,
 } from 'resumable-stream';
 
-import { after } from 'next/server';
+import { after, NextResponse } from 'next/server';
+import {
+  assertJsonContentType,
+  tooLargeByContentLength,
+  verifySameOrigin,
+  sseHeaders,
+  jsonError,
+} from '@/lib/security';
 import {
   getAnonymousSession,
   createAnonymousSession,
@@ -102,6 +109,18 @@ export async function POST(request: NextRequest) {
   const log = createModuleLogger('api:chat');
   let stage = 'init';
   try {
+    // Basic request hardening
+    if (!assertJsonContentType(request)) {
+      return jsonError(415, 'Unsupported Media Type: application/json required');
+    }
+    if (tooLargeByContentLength(request, 256 * 1024)) {
+      return jsonError(413, 'Payload Too Large');
+    }
+    const originCheck = verifySameOrigin(request);
+    if (!originCheck.ok) {
+      log.warn({ reason: originCheck.reason }, 'Blocked cross-origin request');
+      return jsonError(403, 'Forbidden: origin not allowed');
+    }
     stage = 'parse-request';
     const {
       id: chatId,
@@ -134,7 +153,8 @@ export async function POST(request: NextRequest) {
     let session: any = null;
     // Only attempt auth() if a NextAuth session cookie is present; otherwise stay anonymous
     const rawCookie = request.headers.get('cookie') || '';
-    const hasSessionCookie = /(?:^|;\s*)(?:next-auth\.session-token|authjs\.session-token)=/.test(
+    // Detect both standard and __Secure- cookie names for Auth.js/NextAuth in production
+    const hasSessionCookie = /(?:^|;\s*)(?:__Secure-)?(?:next-auth|authjs)\.session-token=/.test(
       rawCookie,
     );
     if (hasSessionCookie) {
@@ -764,9 +784,12 @@ export async function POST(request: NextRequest) {
           await streamContext.resumableStream(streamId, () =>
             stream.pipeThrough(new JsonToSseTransformStream()),
           ),
+          { headers: sseHeaders() },
         );
       } else {
-        return new Response(stream.pipeThrough(new JsonToSseTransformStream()));
+        return new Response(stream.pipeThrough(new JsonToSseTransformStream()), {
+          headers: sseHeaders(),
+        });
       }
     } catch (error) {
       clearTimeout(timeoutId);

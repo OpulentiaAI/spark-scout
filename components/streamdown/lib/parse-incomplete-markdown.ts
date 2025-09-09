@@ -51,6 +51,7 @@ const handleIncompleteDoubleUnderscoreItalic = (text: string): string => {
 
 // Counts single asterisks that are not part of double asterisks and not escaped
 const countSingleAsterisks = (text: string): number => {
+  if (!text || typeof text !== 'string') return 0;
   return text.split('').reduce((acc, char, index) => {
     if (char === '*') {
       const prevChar = text[index - 1];
@@ -83,6 +84,7 @@ const handleIncompleteSingleAsteriskItalic = (text: string): string => {
 
 // Counts single underscores that are not part of double underscores and not escaped
 const countSingleUnderscores = (text: string): number => {
+  if (!text || typeof text !== 'string') return 0;
   return text.split('').reduce((acc, char, index) => {
     if (char === '_') {
       const prevChar = text[index - 1];
@@ -200,6 +202,7 @@ const handleIncompleteStrikethrough = (text: string): string => {
 
 // Counts single dollar signs that are not part of double dollar signs and not escaped
 const countSingleDollarSigns = (text: string): number => {
+  if (!text || typeof text !== 'string') return 0;
   return text.split('').reduce((acc, char, index) => {
     if (char === '$') {
       const prevChar = text[index - 1];

@@ -53,6 +53,7 @@ export function parseIncompleteMarkdown(text: string): string {
   const singleAsteriskMatch = result.match(singleAsteriskPattern);
   if (singleAsteriskMatch) {
     // Count single asterisks that aren't part of **
+    if (!result || typeof result !== 'string') return text;
     const singleAsterisks = result.split('').reduce((acc, char, index) => {
       if (char === '*') {
         // Check if it's part of a ** pair
@@ -76,6 +77,7 @@ export function parseIncompleteMarkdown(text: string): string {
   const singleUnderscoreMatch = result.match(singleUnderscorePattern);
   if (singleUnderscoreMatch) {
     // Count single underscores that aren't part of __
+    if (!result || typeof result !== 'string') return text;
     const singleUnderscores = result.split('').reduce((acc, char, index) => {
       if (char === '_') {
         // Check if it's part of a __ pair

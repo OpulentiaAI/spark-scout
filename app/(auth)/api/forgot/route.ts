@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { assertJsonContentType, verifySameOrigin, jsonError } from '@/lib/security';
 import { z } from 'zod';
 import { getUserByEmail, createPasswordResetToken } from '@/lib/db/queries';
 import { Resend } from 'resend';
@@ -10,6 +11,9 @@ const ForgotSchema = z.object({ email: z.string().email() });
 
 export async function POST(req: Request) {
   try {
+    const originCheck = verifySameOrigin(req);
+    if (!originCheck.ok) return jsonError(403, 'Forbidden: origin not allowed');
+    if (!assertJsonContentType(req)) return jsonError(415, 'Unsupported Media Type: application/json required');
     const body = await req.json();
     const parsed = ForgotSchema.safeParse(body);
     if (!parsed.success) {

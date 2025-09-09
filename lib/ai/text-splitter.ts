@@ -96,17 +96,22 @@ export class RecursiveCharacterTextSplitter
   }
 
   splitText(text: string): string[] {
+    // Handle null/undefined input gracefully
+    if (!text || typeof text !== 'string') {
+      return [];
+    }
+
     const finalChunks: string[] = [];
 
     // Get appropriate separator to use
-    let separator: string = this.separators[this.separators.length - 1]!;
-    for (const s of this.separators) {
-      if (s === '') {
-        separator = s;
+    let separator = '';
+    for (const _s of this.separators) {
+      if (_s === '') {
+        separator = _s;
         break;
       }
-      if (text.includes(s)) {
-        separator = s;
+      if (text.includes(_s)) {
+        separator = _s;
         break;
       }
     }
@@ -114,9 +119,9 @@ export class RecursiveCharacterTextSplitter
     // Now that we have the separator, split the text
     let splits: string[];
     if (separator) {
-      splits = text.split(separator);
+      splits = text?.split?.(separator) || [];
     } else {
-      splits = text.split('');
+      splits = text?.split?.('') || [];
     }
 
     // Now go merging things, recursively splitting longer texts.

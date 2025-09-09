@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { noStoreHeaders } from '@/lib/security';
 import { getAllAttachmentUrls } from '@/lib/db/queries';
 import { listFiles, deleteFilesByUrls } from '@/lib/blob';
 
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
       success: true,
       timestamp: new Date().toISOString(),
       results,
-    });
+    }, { headers: noStoreHeaders() });
   } catch (error) {
     console.error('Cleanup cron job failed:', error);
     return NextResponse.json(
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
         error: 'Cleanup failed',
         details: error instanceof Error ? error.message : 'Unknown error',
       },
-      { status: 500 },
+      { status: 500, headers: noStoreHeaders() },
     );
   }
 }

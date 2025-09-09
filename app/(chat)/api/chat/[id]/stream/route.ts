@@ -4,6 +4,7 @@ import type { Chat } from '@/lib/db/schema';
 import { ChatSDKError } from '@/lib/ai/errors';
 import type { ChatMessage } from '@/lib/ai/types';
 import { createUIMessageStream, JsonToSseTransformStream } from 'ai';
+import { verifySameOrigin, sseHeaders, jsonError } from '@/lib/security';
 import { getRedisPublisher, getStreamContext } from '../../stream-shared';
 import { differenceInSeconds } from 'date-fns';
 
@@ -11,13 +12,17 @@ export async function GET(
   _: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const originCheck = verifySameOrigin(_);
+  if (!originCheck.ok) {
+    return jsonError(403, 'Forbidden: origin not allowed');
+  }
   const { id: chatId } = await params;
 
   const streamContext = getStreamContext();
   const resumeRequestedAt = new Date();
 
   if (!streamContext) {
-    return new Response(null, { status: 204 });
+    return new Response(null, { status: 204, headers: sseHeaders() });
   }
 
   if (!chatId) {
@@ -120,11 +125,11 @@ export async function GET(
 
     return new Response(
       restoredStream.pipeThrough(new JsonToSseTransformStream()),
-      { status: 200 },
+      { status: 200, headers: sseHeaders() },
     );
   }
 
-  return new Response(stream, { status: 200 });
+  return new Response(stream, { status: 200, headers: sseHeaders() });
 }
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;

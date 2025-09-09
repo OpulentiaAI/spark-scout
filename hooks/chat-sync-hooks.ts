@@ -83,7 +83,8 @@ export function useSaveChat() {
     },
     onError: (error) => {
       console.error('Failed to save chat:', error);
-      toast.error('Failed to save chat');
+      // Suppress noisy toast for anonymous flow
+      console.warn('[anonymous] Failed to save chat (suppressed toast)');
     },
   });
 

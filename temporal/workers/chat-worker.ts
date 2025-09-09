@@ -55,12 +55,31 @@ export async function createChatWorker() {
     apiKey,
   });
 
+  const maxCachedWorkflows = process.env.TEMPORAL_MAX_CACHED_WORKFLOWS
+    ? Math.max(2, Number(process.env.TEMPORAL_MAX_CACHED_WORKFLOWS) || 0)
+    : undefined;
+  const maxConcurrentWFT = process.env.TEMPORAL_MAX_CONCURRENT_WFT
+    ? Math.max(2, Number(process.env.TEMPORAL_MAX_CONCURRENT_WFT) || 0)
+    : undefined;
+  const maxConcurrentAT = process.env.TEMPORAL_MAX_CONCURRENT_AT
+    ? Math.max(1, Number(process.env.TEMPORAL_MAX_CONCURRENT_AT) || 0)
+    : undefined;
+  const stickyS2ST = process.env.TEMPORAL_STICKY_SCHEDULE_TO_START_TIMEOUT || undefined; // e.g., '10s'
+
   return await Worker.create({
     connection,
     namespace,
     workflowsPath: require.resolve('../workflows'),
     activities,
     taskQueue: process.env.TEMPORAL_TASK_QUEUE || 'chat-processing',
+    ...(maxCachedWorkflows !== undefined ? { maxCachedWorkflows } : {}),
+    ...(maxConcurrentWFT !== undefined
+      ? { maxConcurrentWorkflowTaskExecutions: maxConcurrentWFT }
+      : {}),
+    ...(maxConcurrentAT !== undefined
+      ? { maxConcurrentActivityTaskExecutions: maxConcurrentAT }
+      : {}),
+    ...(stickyS2ST ? { stickyQueueScheduleToStartTimeout: stickyS2ST as any } : {}),
   });
 }
 

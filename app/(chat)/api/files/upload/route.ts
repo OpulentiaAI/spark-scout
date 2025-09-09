@@ -1,4 +1,11 @@
 import { NextResponse } from 'next/server';
+import {
+  verifySameOrigin,
+  assertMultipartFormData,
+  tooLargeByContentLength,
+  jsonError,
+  sanitizeFilename,
+} from '@/lib/security';
 import { z } from 'zod';
 
 import { auth } from '@/app/(auth)/auth';
@@ -21,6 +28,14 @@ const FileSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const originCheck = verifySameOrigin(request);
+  if (!originCheck.ok) return jsonError(403, 'Forbidden: origin not allowed');
+  if (!assertMultipartFormData(request)) {
+    return jsonError(415, 'Unsupported Media Type: multipart/form-data required');
+  }
+  if (tooLargeByContentLength(request as Request, 6 * 1024 * 1024)) {
+    return jsonError(413, 'Payload Too Large');
+  }
   const session = await auth();
 
   if (!session) {
@@ -50,7 +65,7 @@ export async function POST(request: Request) {
     }
 
     // Get filename from formData since Blob doesn't have name property
-    const filename = (formData.get('file') as File).name;
+    const filename = sanitizeFilename((formData.get('file') as File).name || 'upload.bin');
     const fileBuffer = await file.arrayBuffer();
 
     try {

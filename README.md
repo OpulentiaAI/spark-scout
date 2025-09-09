@@ -137,6 +137,56 @@ Feature flags:
 - `NEXT_PUBLIC_USE_TEXTMORPH_SELECTOR=true` enables the animated model selector.
 - `NEXT_PUBLIC_USE_ENHANCED_SELECTOR=true` enables an approval-aware selector variant.
 
+## 🔒 Route Hardening (Sept 2025)
+
+Core API routes are hardened using the latest AI SDK v5 + Next.js guidance:
+- Same‑origin enforcement for state‑changing routes (Origin and Sec-Fetch-Site checks).
+- Strict Content‑Type validation: `application/json` for JSON routes; `multipart/form-data` for uploads.
+- SSE responses add `text/event-stream`, `no-transform`, `keep-alive`, and `nosniff` headers.
+- Uploads sanitize filenames and bound payload size via `Content-Length`.
+
+Configuration:
+- `ALLOWED_ORIGINS` — optional, comma‑separated list of extra trusted origins (in addition to the request’s own origin).
+
+Impacted files:
+- `lib/security.ts` (helpers)
+- `app/(chat)/api/chat/route.ts`, `app/(chat)/api/chat/[id]/stream/route.ts`
+- `app/(chat)/api/files/upload/route.ts`, `app/api/chat-model/route.ts`, `app/api/trpc/[trpc]/route.ts`
+- Auth endpoints under `app/(auth)/api/*` and cron under `app/api/cron/cleanup/route.ts`
+
+## 🧰 Temporal Reliability (Sept 2025)
+
+Client & API:
+- `TemporalClientManager` now retries initial `Connection.connect` up to 3 times with jittered backoff.
+- `GET /api/temporal/conversation` uses a 5s deadline and maps errors:
+  - `WorkflowNotFoundError` → 404, `QueryRejectedError` → 503, deadline → 503.
+- `POST /api/temporal/start-chat` uses an 8s deadline and maps `WorkflowExecutionAlreadyStartedError` → 409.
+
+Worker tuning (env overridable):
+- `TEMPORAL_MAX_CACHED_WORKFLOWS` ≥ 2 enables workflow cache (improves query latency).
+- `TEMPORAL_MAX_CONCURRENT_WFT` caps concurrent workflow task executions.
+- `TEMPORAL_MAX_CONCURRENT_AT` caps concurrent activity task executions.
+- `TEMPORAL_STICKY_SCHEDULE_TO_START_TIMEOUT` (e.g. `10s`) sets sticky queue S2S timeout.
+
+Suggested production defaults:
+```
+TEMPORAL_MAX_CACHED_WORKFLOWS=50
+TEMPORAL_MAX_CONCURRENT_WFT=40
+TEMPORAL_MAX_CONCURRENT_AT=100
+TEMPORAL_STICKY_SCHEDULE_TO_START_TIMEOUT=10s
+```
+
+## ✅ Tests
+
+Lightweight unit tests validate Temporal error mappings for both routes:
+- `temporal/__tests__/api-routes.test.ts`
+
+Run:
+```
+bun run test:unit
+```
+Note: in some sandbox environments you may see a harmless `EPERM` on process teardown; test assertions still run and pass.
+
 
 ## 🙏 Acknowledgements
 

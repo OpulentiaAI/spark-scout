@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { assertJsonContentType, verifySameOrigin, jsonError } from '@/lib/security';
 import { z } from 'zod';
 import crypto from 'node:crypto';
 import { getPasswordResetByHash, deletePasswordResetById, setUserPasswordHash } from '@/lib/db/queries';
@@ -11,6 +12,9 @@ const ResetSchema = z.object({
 
 export async function POST(req: Request) {
   try {
+    const originCheck = verifySameOrigin(req);
+    if (!originCheck.ok) return jsonError(403, 'Forbidden: origin not allowed');
+    if (!assertJsonContentType(req)) return jsonError(415, 'Unsupported Media Type: application/json required');
     const body = await req.json();
     const parsed = ResetSchema.safeParse(body);
     if (!parsed.success) return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
