@@ -121,8 +121,9 @@ export function getTrailingMessageId({
   return trailingMessage.id;
 }
 
-export function getLanguageFromFileName(fileName: string): string {
-  const extension = fileName.split('.').pop()?.toLowerCase() || '';
+export function getLanguageFromFileName(fileName: string | null | undefined): string {
+  const safeName = typeof fileName === 'string' ? fileName : '';
+  const extension = safeName.split('.' ).pop()?.toLowerCase() || '';
 
   const extensionToLanguage: Record<string, string> = {
     // JavaScript/TypeScript
