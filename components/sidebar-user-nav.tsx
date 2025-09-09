@@ -31,11 +31,9 @@ export function HeaderUserNav({ user }: { user: User }) {
           <Image
             src={
               user.image ||
-              `https://avatar.vercel.sh/${encodeURIComponent(
-                user.email || 'user',
-              )}?text=${encodeURIComponent(
-                (user.email || 'U').slice(0, 2).toUpperCase(),
-              )}`
+              `https://avatar.vercel.sh/${(user.email || 'user')}.png?text=${(user.email || 'U')
+                .slice(0, 2)
+                .toUpperCase()}`
             }
             alt={user.email ?? 'User Avatar'}
             width={24}
