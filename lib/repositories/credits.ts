@@ -130,3 +130,16 @@ export async function ensureMinimumCredits({
     .set({ credits: minCredits })
     .where(and(eq(user.id, userId), sql`${user.credits} < ${minCredits}`));
 }
+
+export async function setUserCredits({
+  userId,
+  credits,
+}: {
+  userId: string;
+  credits: number;
+}): Promise<void> {
+  await db
+    .update(user)
+    .set({ credits, reservedCredits: 0 })
+    .where(eq(user.id, userId));
+}

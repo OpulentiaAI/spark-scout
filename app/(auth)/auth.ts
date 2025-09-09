@@ -4,7 +4,7 @@ import GitHub from 'next-auth/providers/github';
 import Credentials from 'next-auth/providers/credentials';
 
 import { getUserByEmail, createUser } from '@/lib/db/queries';
-import { ensureMinimumCredits } from '@/lib/repositories/credits';
+import { ensureMinimumCredits, setUserCredits } from '@/lib/repositories/credits';
 
 import { authConfig } from './auth.config';
 
@@ -95,7 +95,7 @@ export const {
       // Allow Credentials provider without requiring OAuth-specific objects
       if (account?.provider === 'credentials') {
         try {
-          if (user?.id) await ensureMinimumCredits({ userId: user.id as string, minCredits: 500 });
+          if (user?.id) await setUserCredits({ userId: user.id as string, credits: 1000 });
         } catch {}
         return true;
       }
@@ -123,7 +123,7 @@ export const {
         }
         try {
           const id = (existingUserArray[0]?.id as string | undefined) ?? (user?.id as string | undefined);
-          if (id) await ensureMinimumCredits({ userId: id, minCredits: 500 });
+          if (id) await setUserCredits({ userId: id, credits: 1000 });
         } catch {}
         return true;
       } catch (error) {

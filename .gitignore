@@ -43,3 +43,5 @@ yarn-error.log*
 /playwright/*
 
 tsconfig.tsbuildinfo
+# Twiggy
+.cursor/rules/file-structure.mdc
