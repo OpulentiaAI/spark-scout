@@ -790,10 +790,13 @@ export function useGetCredits() {
 
   const queryOptions = useMemo(() => {
     if (isAuthenticated) {
-      return trpc.credits.getAvailableCredits.queryOptions();
+      // Use a distinct key segment to avoid sharing cache with anonymous state
+      const base = trpc.credits.getAvailableCredits.queryKey();
+      return { ...trpc.credits.getAvailableCredits.queryOptions(), queryKey: [...base, 'auth'] } as const;
     } else {
       return {
-        queryKey: trpc.credits.getAvailableCredits.queryKey(),
+        // Distinguish anonymous credits cache from authenticated cache
+        queryKey: [...trpc.credits.getAvailableCredits.queryKey(), 'anonymous'],
         queryFn: async () => {
           const anonymousSession = getAnonymousSession();
           return {
