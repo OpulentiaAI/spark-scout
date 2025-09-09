@@ -45,8 +45,14 @@ export function RetryButton({
     }
 
     const parentMessage = currentMessages[parentMessageIdx];
-    if (parentMessage.role !== 'user') {
+    if (!parentMessage || parentMessage.role !== 'user') {
       toast.error('Parent message is not from user');
+      return;
+    }
+
+    // Ensure parent message has valid parts
+    if (!parentMessage.parts || parentMessage.parts.length === 0) {
+      toast.error('Parent message has no content');
       return;
     }
     setMessages(currentMessages.slice(0, parentMessageIdx));

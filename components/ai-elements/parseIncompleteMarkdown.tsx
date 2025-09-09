@@ -4,8 +4,12 @@
  * of links, images, bold, and italic formatting during streaming.
  */
 export function parseIncompleteMarkdown(text: string): string {
-  if (!text || typeof text !== 'string') {
-    return text;
+  if (text == null || typeof text !== 'string') {
+    return '';
+  }
+  // Handle the case where text might be undefined during streaming
+  if (text === undefined) {
+    return '';
   }
 
   let result = text;

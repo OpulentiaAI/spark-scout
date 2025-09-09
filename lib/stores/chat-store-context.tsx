@@ -1,4 +1,5 @@
 'use client';
+'use client';
 
 import { useRef, createContext, useContext } from 'react';
 import { createStore } from 'zustand/vanilla';
@@ -281,8 +282,10 @@ export function createChatStore<UI_MESSAGE extends UIMessage>(
             const message = (state._throttledMessages || state.messages).find(
               (msg) => msg.id === messageId,
             );
-            if (!message)
-              throw new Error(`Message not found for id: ${messageId}`);
+            if (!message) {
+              console.warn(`Message not found for id: ${messageId}`);
+              return [] as Array<UIMessagePartType<UI_MESSAGE>>;
+            }
             const { types } = extractPartTypes<UI_MESSAGE>(message);
             return types as Array<UIMessagePartType<UI_MESSAGE>>;
           },
@@ -336,7 +339,7 @@ export function createChatStore<UI_MESSAGE extends UIMessage>(
                   selected.type,
                 )}`,
               );
-            const text = selected.text || '';
+            const text = selected.text != null ? selected.text : '';
             const cached = getMarkdownFromCache({
               cache: get()._markdownCache,
               messageId,
@@ -365,7 +368,7 @@ export function createChatStore<UI_MESSAGE extends UIMessage>(
                   selected.type,
                 )}`,
               );
-            const text = selected.text || '';
+            const text = selected.text != null ? selected.text : '';
             const cached = getMarkdownFromCache({
               cache: get()._markdownCache,
               messageId,
@@ -403,7 +406,7 @@ export function createChatStore<UI_MESSAGE extends UIMessage>(
                   selected.type,
                 )}`,
               );
-            const text = selected.text || '';
+            const text = selected.text != null ? selected.text : '';
             const cached = getMarkdownFromCache({
               cache: get()._markdownCache,
               messageId,
@@ -616,22 +619,22 @@ export const useChatError = () => useChatStore((state) => state.error);
 export const useChatId = () => useChatStore((state) => state.id);
 export const useMessageIds = () =>
   useChatStore((state) => state.getMessageIds(), shallow);
-export const useMessageById = (messageId: string): ChatMessage =>
+export const useMessageById = (messageId: string): ChatMessage | undefined =>
   useChatStore((state) => {
     const message = state
       .getThrottledMessages()
       .find((m) => m.id === messageId);
-    if (!message) throw new Error(`Message not found for id: ${messageId}`);
     return message;
   });
 
-export const useMessageRoleById = (messageId: string): ChatMessage['role'] =>
+export const useMessageRoleById = (
+  messageId: string,
+): ChatMessage['role'] | undefined =>
   useChatStore((state) => {
     const message = state
       .getThrottledMessages()
       .find((m) => m.id === messageId);
-    if (!message) throw new Error(`Message not found for id: ${messageId}`);
-    return message.role;
+    return message?.role;
   });
 export const useMessagePartsById = (messageId: string): ChatMessage['parts'] =>
   useChatStore((state) => {

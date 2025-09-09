@@ -143,16 +143,16 @@ const handleIncompleteInlineCode = (text: string): string => {
   if (inlineTripleBacktickMatch && !text.includes('\n')) {
     // Check if it ends with exactly 2 backticks (incomplete)
     if (text.endsWith('``') && !text.endsWith('```')) {
-      return `${text}` + '`';
+      return `${text}\``;
     }
     // Already complete inline triple backticks
     return text;
   }
-  
+
   // Check if we're inside a multi-line code block (complete or incomplete)
   const allTripleBackticks = (text.match(/```/g) || []).length;
   const insideIncompleteCodeBlock = allTripleBackticks % 2 === 1;
-  
+
   // Special case: if text ends with ```\n (triple backticks followed by newline)
   // This is actually a complete code block, not incomplete
   if (text.endsWith('```\n') || text.endsWith('```')) {
@@ -161,9 +161,13 @@ const handleIncompleteInlineCode = (text: string): string => {
       return text;
     }
   }
-  
+
   // Don't modify text if we have complete multi-line code blocks (even pairs of ```)
-  if (allTripleBackticks > 0 && allTripleBackticks % 2 === 0 && text.includes('\n')) {
+  if (
+    allTripleBackticks > 0 &&
+    allTripleBackticks % 2 === 0 &&
+    text.includes('\n')
+  ) {
     // We have complete multi-line code blocks, don't add any backticks
     return text;
   }
@@ -173,7 +177,7 @@ const handleIncompleteInlineCode = (text: string): string => {
   if (inlineCodeMatch && !insideIncompleteCodeBlock) {
     const singleBacktickCount = countSingleBackticks(text);
     if (singleBacktickCount % 2 === 1) {
-      return `${text}` + '`';
+      return `${text}\``;
     }
   }
 
@@ -244,7 +248,7 @@ const handleIncompleteInlineKatex = (text: string): string => {
 const countTripleAsterisks = (text: string): number => {
   let count = 0;
   const matches = text.match(/\*+/g) || [];
-  
+
   for (const match of matches) {
     // Count how many complete triple asterisks are in this sequence
     const asteriskCount = match.length;
@@ -253,7 +257,7 @@ const countTripleAsterisks = (text: string): number => {
       count += Math.floor(asteriskCount / 3);
     }
   }
-  
+
   return count;
 };
 
@@ -264,7 +268,7 @@ const handleIncompleteBoldItalic = (text: string): string => {
   if (/^\*{4,}$/.test(text)) {
     return text;
   }
-  
+
   const boldItalicMatch = text.match(boldItalicPattern);
 
   if (boldItalicMatch) {
@@ -279,8 +283,13 @@ const handleIncompleteBoldItalic = (text: string): string => {
 
 // Parses markdown text and removes incomplete tokens to prevent partial rendering
 export const parseIncompleteMarkdown = (text: string): string => {
-  if (!text || typeof text !== 'string') {
-    return text;
+  // Handle null/undefined input gracefully
+  if (text == null || typeof text !== 'string') {
+    return '';
+  }
+  // Handle the case where text might be undefined during streaming
+  if (text === undefined) {
+    return '';
   }
 
   let result = text;
@@ -297,7 +306,7 @@ export const parseIncompleteMarkdown = (text: string): string => {
   result = handleIncompleteSingleUnderscoreItalic(result);
   result = handleIncompleteInlineCode(result);
   result = handleIncompleteStrikethrough(result);
-  
+
   // Handle KaTeX formatting (block first, then inline)
   result = handleIncompleteBlockKatex(result);
   result = handleIncompleteInlineKatex(result);

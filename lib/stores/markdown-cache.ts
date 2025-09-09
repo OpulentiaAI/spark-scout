@@ -8,6 +8,13 @@ export type MarkdownCacheEntry = {
 };
 
 function lexToBlocks(text: string): string[] {
+  if (text == null || typeof text !== 'string') {
+    return [];
+  }
+  // Handle the case where text might be undefined during streaming
+  if (text === undefined) {
+    return [];
+  }
   const tokens = marked.lexer(text);
   return tokens.map((t) => t.raw);
 }
