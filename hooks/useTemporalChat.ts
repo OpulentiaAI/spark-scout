@@ -3,6 +3,8 @@
 import { useState, useCallback } from 'react';
 import type { ModelConfig, ChatMessage } from '@/temporal/types/workflow-types';
 
+const TEMPORAL_ENABLED = process.env.NEXT_PUBLIC_TEMPORAL_ENABLED === 'true';
+
 export function useTemporalChat() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [currentWorkflowId, setCurrentWorkflowId] = useState<string | null>(null);
@@ -69,6 +71,9 @@ export function useTemporalChat() {
       modelConfig: ModelConfig,
       initialMessages: ChatMessage[] = [],
     ) => {
+      if (!TEMPORAL_ENABLED) {
+        return null;
+      }
       try {
         const res = await fetch('/api/temporal/start-chat', {
           method: 'POST',
@@ -92,6 +97,9 @@ export function useTemporalChat() {
     approvalWorkflowId,
     // Phase 8: approval workflow hooks via API
     requestApproval: async (request: any) => {
+      if (!TEMPORAL_ENABLED) {
+        return { ok: false } as { ok: boolean; approvalWorkflowId?: string };
+      }
       try {
         const res = await fetch('/api/temporal/approvals/request', {
           method: 'POST',
@@ -110,6 +118,7 @@ export function useTemporalChat() {
       }
     },
     getPendingApprovals: async () => {
+      if (!TEMPORAL_ENABLED) return [] as any[];
       try {
         if (!approvalWorkflowId) return [] as any[];
         const res = await fetch(`/api/temporal/approvals/pending?approvalWorkflowId=${approvalWorkflowId}`);
@@ -121,6 +130,7 @@ export function useTemporalChat() {
       }
     },
     approveRequest: async (requestId: string, approved: boolean, feedback?: string) => {
+      if (!TEMPORAL_ENABLED) return { ok: false } as { ok: boolean };
       try {
         if (!approvalWorkflowId) return { ok: false };
         const res = await fetch('/api/temporal/approvals/approve', {
