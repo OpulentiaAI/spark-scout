@@ -19,7 +19,6 @@ import {
 } from '@/lib/db/queries';
 import { generateUUID } from '@/lib/utils';
 
-import { getTools } from '@/lib/ai/tools/tools';
 import { toolsDefinitions, allTools } from '@/lib/ai/tools/tools-definitions';
 import type { ToolName, ChatMessage } from '@/lib/ai/types';
 import type { NextRequest } from 'next/server';
@@ -461,7 +460,8 @@ export async function POST(request: NextRequest) {
 
       // Build the data stream that will emit tokens
       const stream = createUIMessageStream<ChatMessage>({
-        execute: ({ writer: dataStream }) => {
+        execute: async ({ writer: dataStream }) => {
+          const { getTools } = await import('@/lib/ai/tools/tools');
           const result = streamText({
             model: getLanguageModel(selectedModelId),
             system: systemPrompt(),
